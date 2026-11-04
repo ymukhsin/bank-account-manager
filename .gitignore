@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# Bank Account Manager - Git ignore rules
+# ---------------------------------------------------------------------------
+
+# Compiled executables
+*.exe
+bank_app
+bank_app.exe
+
+# Object files and compiled intermediates
+*.o
+*.obj
+*.gch
+*.pch
+
+# Build directories
+build/
+bin/
+out/
+obj/
+dist/
+
+# Static / shared libraries produced by the build
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Dependency, debug, and coverage artifacts
+*.d
+*.pdb
+*.ilk
+*.idb
+*.gcda
+*.gcno
+*.gcov
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*~
+
+# IDE / editor settings (keep personal configuration out of the repo)
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
