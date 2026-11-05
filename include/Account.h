@@ -2,6 +2,7 @@
 #define BANK_ACCOUNT_MANAGER_ACCOUNT_H
 
 #include <string>
+#include <utility>
 
 /**
  * Account
@@ -18,6 +19,13 @@ protected:
     std::string accountNumber;  // Unique identifier assigned by the bank
     std::string holderName;     // Full name of the account holder
     double balance = 0.0;       // Current balance in the account currency
+
+    // Derived constructors use this to initialise the shared account
+    // state through an initializer list.
+    Account(std::string number, std::string name, double initialBalance)
+        : accountNumber(std::move(number)),
+          holderName(std::move(name)),
+          balance(initialBalance) {}
 
 public:
     // Virtual destructor: deleting a derived account through an Account*
