@@ -10,7 +10,7 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 | Course | OOP II |
 | Language | C++ (C++11 or later) |
 | Toolchain | g++ |
-| Current version | 0.2.0 - savings account |
+| Current version | 0.3.0 - checking account |
 
 ## Team Credits
 
@@ -44,9 +44,18 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 - [x] `deposit()` and `withdraw()` overrides satisfy the pure virtual API
 - [x] Runtime test: `Mina`, balance `1000.00`, rate `0.05` displays `1050.00`
 
+### Checking account milestone
+
+- [x] `CheckingAccount` inherits publicly from `Account`
+- [x] Private `overdraftLimit` member
+- [x] Constructor initialises the base state through an initializer list
+- [x] `withdraw()` allows `(balance - amount) >= -overdraftLimit` for positive amounts
+- [x] `displayInfo()` override reports checking details and overdraft limit
+- [x] `deposit()` override satisfies the pure virtual API
+- [x] Runtime test: `Jin`, balance `200.00`, limit `300.00`; a `400.00` withdrawal reaches `-200.00`, and a further `200.00` is refused
+
 ### Planned milestones
 
-- [ ] Remaining concrete account type (`CheckingAccount`)
 - [ ] Account creation, lookup, listing, and closing
 - [ ] Deposit/withdraw flows with interactive input
 - [ ] Transaction history and reporting
@@ -59,10 +68,11 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 ```text
 bank-account-manager/
 |-- include/
-|   |-- Account.h        # Abstract base class
-|   `-- SavingsAccount.h # Interest-bearing concrete account
+|   |-- Account.h         # Abstract base class
+|   |-- SavingsAccount.h  # Interest-bearing concrete account
+|   `-- CheckingAccount.h # Overdraft-enabled concrete account
 |-- src/
-|   `-- main.cpp         # CLI entry point and savings-account smoke test
+|   `-- main.cpp          # CLI entry point and account smoke tests
 |-- .gitignore
 `-- README.md
 ```
@@ -91,7 +101,10 @@ g++ -Iinclude src/main.cpp -o bank_app
 bank_app.exe      # Windows PowerShell or CMD
 ```
 
-The current smoke test creates `SavingsAccount("Mina", 1000.0, 0.05)`, applies one interest posting, and prints the resulting balance of `1050.00`.
+The current smoke test exercises both concrete account types:
+
+- `SavingsAccount("Mina", 1000.0, 0.05)` applies one interest posting and prints `1050.00`.
+- `CheckingAccount("Jin", 200.0, 300.0)` allows a `400.00` withdrawal down to `-200.00`, then refuses another `200.00` because it would exceed the `300.00` overdraft limit.
 
 ### Recommended strict build (optional)
 
@@ -105,13 +118,14 @@ g++ -std=c++14 -Wall -Wextra -pedantic -Iinclude src/main.cpp -o bank_app
 - A protected `Account` constructor lets derived constructors initialise `accountNumber`, `holderName`, and `balance` through an initializer list.
 - Data members are `protected` so derived account types can manage state while clients use only the public API.
 - `SavingsAccount` stores its rate as a decimal fraction (`0.05` means 5%) and applies `balance += balance * interestRate` in `addInterest()`.
-- Savings account numbers are generated in the form `SAV-1001`, `SAV-1002`, and so on.
+- `CheckingAccount` permits negative balances down to `-overdraftLimit`; a withdrawal is accepted only when `amount > 0` and `(balance - amount) >= -overdraftLimit`.
+- Account numbers are generated as `SAV-1001`, `CHK-2001`, and so on.
 - The virtual destructor guarantees that deleting a derived account through an `Account*` runs the full destructor chain.
-- Derived classes must enforce their own rules (positive amounts, no overdraft below the allowed minimum, etc.).
+- Derived classes enforce their own transaction rules (positive amounts and account-specific balance constraints).
 
 ## Next Steps
 
-1. Add `CheckingAccount` with its own validation and display format.
-2. Replace the placeholder banner flow with the main menu.
+1. Replace the banner-only flow with an interactive account-management menu.
+2. Add account creation, lookup, listing, and closing.
 3. Add transaction records and file persistence.
 4. Expand this README with usage examples and test evidence.

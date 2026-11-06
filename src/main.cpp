@@ -1,4 +1,5 @@
 #include "Account.h"
+#include "CheckingAccount.h"
 #include "SavingsAccount.h"
 
 #include <iostream>
@@ -8,7 +9,7 @@
 namespace {
 
 const char* const kAppName = "Bank Account Manager";
-const char* const kVersion = "0.2.0";
+const char* const kVersion = "0.3.0";
 const int kRuleWidth = 60;
 
 void printRule(char symbol = '-') {
@@ -33,6 +34,9 @@ void printInterfaceChecks() {
     std::cout << " [OK] SavingsAccount derives from Account: "
               << (std::is_base_of<Account, SavingsAccount>::value ? "yes" : "no")
               << '\n';
+    std::cout << " [OK] CheckingAccount derives from Account: "
+              << (std::is_base_of<Account, CheckingAccount>::value ? "yes" : "no")
+              << '\n';
     std::cout << " [OK] deposit(), withdraw(), and displayInfo() overridden\n";
     printRule('-');
 }
@@ -48,12 +52,29 @@ void runSavingsAccountTest() {
     printRule('-');
 }
 
+void runCheckingAccountTest() {
+    std::cout << "\n Checking Account Test\n";
+    printRule('-');
+
+    CheckingAccount account("Jin", 200.0, 300.0);
+
+    std::cout << " Attempting withdrawal: 400.00 (within overdraft)\n";
+    account.withdraw(400.0);
+
+    std::cout << " Attempting withdrawal: 200.00 (over limit, refused)\n";
+    account.withdraw(200.0);
+
+    account.displayInfo();
+    printRule('-');
+}
+
 }  // namespace
 
 int main() {
     printBanner();
     printInterfaceChecks();
     runSavingsAccountTest();
+    runCheckingAccountTest();
 
     std::cout << "\n Press Enter to exit...";
     std::cout.flush();
