@@ -2,6 +2,7 @@
 #define BANK_ACCOUNT_MANAGER_CHECKING_ACCOUNT_H
 
 #include "Account.h"
+#include "InsufficientFundsException.h"
 
 #include <iomanip>
 #include <iostream>
@@ -38,11 +39,15 @@ public:
     }
 
     // A withdrawal is allowed while the resulting balance stays at or
-    // above the negative overdraft limit.
+    // above the negative overdraft limit; otherwise it is rejected.
     void withdraw(double amount) override {
-        if (amount > 0.0 && (balance - amount) >= -overdraftLimit) {
-            balance -= amount;
+        if (amount <= 0.0) {
+            return;
         }
+        if ((balance - amount) < -overdraftLimit) {
+            throw InsufficientFundsException(amount, balance);
+        }
+        balance -= amount;
     }
 
     void displayInfo() override {

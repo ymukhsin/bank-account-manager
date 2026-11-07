@@ -10,7 +10,7 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 | Course | OOP II |
 | Language | C++ (C++11 or later) |
 | Toolchain | g++ |
-| Current version | 0.3.0 - checking account |
+| Current version | 0.4.0 - custom exceptions |
 
 ## Team Credits
 
@@ -52,7 +52,19 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 - [x] `withdraw()` allows `(balance - amount) >= -overdraftLimit` for positive amounts
 - [x] `displayInfo()` override reports checking details and overdraft limit
 - [x] `deposit()` override satisfies the pure virtual API
-- [x] Runtime test: `Jin`, balance `200.00`, limit `300.00`; a `400.00` withdrawal reaches `-200.00`, and a further `200.00` is refused
+- [x] Runtime test: `Jin`, balance `200.00`, limit `300.00`; a `400.00` withdrawal reaches `-200.00`
+
+### Custom exception milestone
+
+- [x] `InsufficientFundsException` inherits publicly from `std::exception`
+- [x] Stores the requested amount and current balance as private members
+- [x] Constructor initialises both fields through an initializer list
+- [x] `what()` is `const`, `noexcept`, and overrides the base method
+- [x] `getRequestedAmount()` and `getCurrentBalance()` accessors
+- [x] `SavingsAccount::withdraw()` throws when the amount exceeds the balance
+- [x] `CheckingAccount::withdraw()` throws when the overdraft limit would be exceeded
+- [x] `main()` catches the exception and prints `what()`, requested amount, and balance
+- [x] Runtime test: a second `200.00` withdrawal from `Jin` is caught with a `-200.00` balance
 
 ### Planned milestones
 
@@ -60,7 +72,7 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 - [ ] Deposit/withdraw flows with interactive input
 - [ ] Transaction history and reporting
 - [ ] Persistent storage (load/save accounts)
-- [ ] Exception handling and edge-case tests
+- [ ] Additional validation exceptions (invalid amounts, rates)
 - [ ] Final UML diagram, report, and demo
 
 ## Project Structure
@@ -68,11 +80,12 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 ```text
 bank-account-manager/
 |-- include/
-|   |-- Account.h         # Abstract base class
-|   |-- SavingsAccount.h  # Interest-bearing concrete account
-|   `-- CheckingAccount.h # Overdraft-enabled concrete account
+|   |-- Account.h                    # Abstract base class
+|   |-- SavingsAccount.h             # Interest-bearing concrete account
+|   |-- CheckingAccount.h            # Overdraft-enabled concrete account
+|   `-- InsufficientFundsException.h # Custom withdrawal exception
 |-- src/
-|   `-- main.cpp          # CLI entry point and account smoke tests
+|   `-- main.cpp                     # CLI entry point and account smoke tests
 |-- .gitignore
 `-- README.md
 ```
@@ -101,10 +114,11 @@ g++ -Iinclude src/main.cpp -o bank_app
 bank_app.exe      # Windows PowerShell or CMD
 ```
 
-The current smoke test exercises both concrete account types:
+The current smoke test exercises both concrete account types and the exception path:
 
 - `SavingsAccount("Mina", 1000.0, 0.05)` applies one interest posting and prints `1050.00`.
-- `CheckingAccount("Jin", 200.0, 300.0)` allows a `400.00` withdrawal down to `-200.00`, then refuses another `200.00` because it would exceed the `300.00` overdraft limit.
+- `CheckingAccount("Jin", 200.0, 300.0)` allows a `400.00` withdrawal down to `-200.00`.
+- A further `200.00` withdrawal exceeds the overdraft limit and throws `InsufficientFundsException`; `main()` catches it and prints the message and account details.
 
 ### Recommended strict build (optional)
 
@@ -119,13 +133,13 @@ g++ -std=c++14 -Wall -Wextra -pedantic -Iinclude src/main.cpp -o bank_app
 - Data members are `protected` so derived account types can manage state while clients use only the public API.
 - `SavingsAccount` stores its rate as a decimal fraction (`0.05` means 5%) and applies `balance += balance * interestRate` in `addInterest()`.
 - `CheckingAccount` permits negative balances down to `-overdraftLimit`; a withdrawal is accepted only when `amount > 0` and `(balance - amount) >= -overdraftLimit`.
+- Over-limit withdrawals throw `InsufficientFundsException`, which carries the requested amount and the balance at the time of the failure.
 - Account numbers are generated as `SAV-1001`, `CHK-2001`, and so on.
 - The virtual destructor guarantees that deleting a derived account through an `Account*` runs the full destructor chain.
-- Derived classes enforce their own transaction rules (positive amounts and account-specific balance constraints).
 
 ## Next Steps
 
 1. Replace the banner-only flow with an interactive account-management menu.
-2. Add account creation, lookup, listing, and closing.
+2. Catch and report exceptions in the menu's withdrawal flow.
 3. Add transaction records and file persistence.
 4. Expand this README with usage examples and test evidence.

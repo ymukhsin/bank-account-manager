@@ -1,7 +1,9 @@
 #include "Account.h"
 #include "CheckingAccount.h"
+#include "InsufficientFundsException.h"
 #include "SavingsAccount.h"
 
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <type_traits>
@@ -9,7 +11,7 @@
 namespace {
 
 const char* const kAppName = "Bank Account Manager";
-const char* const kVersion = "0.3.0";
+const char* const kVersion = "0.4.0";
 const int kRuleWidth = 60;
 
 void printRule(char symbol = '-') {
@@ -61,8 +63,15 @@ void runCheckingAccountTest() {
     std::cout << " Attempting withdrawal: 400.00 (within overdraft)\n";
     account.withdraw(400.0);
 
-    std::cout << " Attempting withdrawal: 200.00 (over limit, refused)\n";
-    account.withdraw(200.0);
+    std::cout << " Attempting withdrawal: 200.00 (over limit)\n";
+    try {
+        account.withdraw(200.0);
+    } catch (const InsufficientFundsException& e) {
+        std::cout << "\n [CATCH] " << e.what() << '\n';
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << " Requested Amount : " << e.getRequestedAmount() << '\n';
+        std::cout << " Current Balance  : " << e.getCurrentBalance() << '\n';
+    }
 
     account.displayInfo();
     printRule('-');
