@@ -1,4 +1,5 @@
 #include "Account.h"
+#include "Bank.h"
 #include "CheckingAccount.h"
 #include "InsufficientFundsException.h"
 #include "SavingsAccount.h"
@@ -11,7 +12,7 @@
 namespace {
 
 const char* const kAppName = "Bank Account Manager";
-const char* const kVersion = "0.4.0";
+const char* const kVersion = "0.5.0";
 const int kRuleWidth = 60;
 
 void printRule(char symbol = '-') {
@@ -77,6 +78,35 @@ void runCheckingAccountTest() {
     printRule('-');
 }
 
+void runBankManagerTest() {
+    std::cout << "\n Bank Manager Test\n";
+    printRule('-');
+
+    Bank myBank;
+    myBank.addAccount(new SavingsAccount("Mina", 1000.0, 0.05));
+    myBank.addAccount(new CheckingAccount("Jin", 200.0, 300.0));
+
+    std::cout << " Accounts registered with myBank:\n";
+    myBank.showAllAccounts();
+
+    Account* found = myBank.findAccount("Mina");
+    if (found != nullptr) {
+        std::cout << "\n findAccount(\"Mina\") succeeded. Depositing 500.00...\n";
+        found->deposit(500.0);
+        std::cout << " Updated account:\n";
+        found->displayInfo();
+    } else {
+        std::cout << "\n findAccount(\"Mina\") returned nullptr.\n";
+    }
+
+    Account* missing = myBank.findAccount("Unknown");
+    std::cout << "\n findAccount(\"Unknown\") returned "
+              << (missing == nullptr ? "nullptr" : "a valid pointer") << ".\n";
+
+    std::cout << "\n Bank scope ends; ~Bank() deletes both accounts.\n";
+    printRule('-');
+}
+
 }  // namespace
 
 int main() {
@@ -84,6 +114,7 @@ int main() {
     printInterfaceChecks();
     runSavingsAccountTest();
     runCheckingAccountTest();
+    runBankManagerTest();
 
     std::cout << "\n Press Enter to exit...";
     std::cout.flush();

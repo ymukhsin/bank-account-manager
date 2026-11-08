@@ -10,7 +10,7 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 | Course | OOP II |
 | Language | C++ (C++11 or later) |
 | Toolchain | g++ |
-| Current version | 0.4.0 - custom exceptions |
+| Current version | 0.5.0 - bank manager |
 
 ## Team Credits
 
@@ -66,9 +66,22 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 - [x] `main()` catches the exception and prints `what()`, requested amount, and balance
 - [x] Runtime test: a second `200.00` withdrawal from `Jin` is caught with a `-200.00` balance
 
+### Bank manager milestone
+
+- [x] `Bank` stores accounts in `std::vector<Account*>`
+- [x] `addAccount(Account*)` transfers ownership to the bank
+- [x] `showAllAccounts() const` calls `displayInfo()` through base pointers
+- [x] `findAccount(ownerName)` returns the matching account or `nullptr`
+- [x] `~Bank()` deletes every owned account
+- [x] Copy construction and assignment are disabled to prevent double deletion
+- [x] `Account::getHolderName()` provides read-only lookup access
+- [x] Runtime test: dynamically allocated savings and checking accounts displayed polymorphically
+- [x] Runtime test: `findAccount("Mina")` followed by a `500.00` deposit updates the balance to `1500.00`
+- [x] Runtime test: `findAccount("Unknown")` returns `nullptr`
+
 ### Planned milestones
 
-- [ ] Account creation, lookup, listing, and closing
+- [ ] Interactive account creation, lookup, listing, and closing
 - [ ] Deposit/withdraw flows with interactive input
 - [ ] Transaction history and reporting
 - [ ] Persistent storage (load/save accounts)
@@ -83,7 +96,8 @@ bank-account-manager/
 |   |-- Account.h                    # Abstract base class
 |   |-- SavingsAccount.h             # Interest-bearing concrete account
 |   |-- CheckingAccount.h            # Overdraft-enabled concrete account
-|   `-- InsufficientFundsException.h # Custom withdrawal exception
+|   |-- InsufficientFundsException.h # Custom withdrawal exception
+|   `-- Bank.h                       # Owns accounts through Account pointers
 |-- src/
 |   `-- main.cpp                     # CLI entry point and account smoke tests
 |-- .gitignore
@@ -114,11 +128,12 @@ g++ -Iinclude src/main.cpp -o bank_app
 bank_app.exe      # Windows PowerShell or CMD
 ```
 
-The current smoke test exercises both concrete account types and the exception path:
+The current smoke test exercises the concrete account types, the exception path, and the bank manager:
 
 - `SavingsAccount("Mina", 1000.0, 0.05)` applies one interest posting and prints `1050.00`.
 - `CheckingAccount("Jin", 200.0, 300.0)` allows a `400.00` withdrawal down to `-200.00`.
-- A further `200.00` withdrawal exceeds the overdraft limit and throws `InsufficientFundsException`; `main()` catches it and prints the message and account details.
+- A further `200.00` withdrawal throws `InsufficientFundsException`; `main()` catches it and prints the message and account details.
+- `Bank` owns dynamically allocated savings and checking accounts, displays them polymorphically, finds `Mina`, deposits `500.00`, and reports an unknown-owner lookup as `nullptr`.
 
 ### Recommended strict build (optional)
 
@@ -134,12 +149,14 @@ g++ -std=c++14 -Wall -Wextra -pedantic -Iinclude src/main.cpp -o bank_app
 - `SavingsAccount` stores its rate as a decimal fraction (`0.05` means 5%) and applies `balance += balance * interestRate` in `addInterest()`.
 - `CheckingAccount` permits negative balances down to `-overdraftLimit`; a withdrawal is accepted only when `amount > 0` and `(balance - amount) >= -overdraftLimit`.
 - Over-limit withdrawals throw `InsufficientFundsException`, which carries the requested amount and the balance at the time of the failure.
+- `Bank` takes ownership of accounts added through `addAccount()`. Its destructor deletes each pointer, and its virtual base-class destructor ensures the derived destructor runs.
+- `Bank` copying is disabled because duplicating the raw pointers would lead to double deletion.
 - Account numbers are generated as `SAV-1001`, `CHK-2001`, and so on.
 - The virtual destructor guarantees that deleting a derived account through an `Account*` runs the full destructor chain.
 
 ## Next Steps
 
 1. Replace the banner-only flow with an interactive account-management menu.
-2. Catch and report exceptions in the menu's withdrawal flow.
-3. Add transaction records and file persistence.
-4. Expand this README with usage examples and test evidence.
+2. Add interactive account creation, lookup, listing, and closing.
+3. Catch and report exceptions in the menu's withdrawal flow.
+4. Add transaction records and file persistence.
