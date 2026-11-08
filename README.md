@@ -104,6 +104,84 @@ bank-account-manager/
 `-- README.md
 ```
 
+## System Architecture & UML Diagram
+
+```mermaid
+classDiagram
+    class Account {
+        <<abstract>>
+        -string accountNumber
+        -string ownerName
+        -double balance
+        +Account(number, owner, initialBalance)
+        +deposit(amount) void
+        +withdraw(amount) void
+        +display() void
+        +getType() string
+        +getBalance() double
+        +getAccountNumber() string
+    }
+
+    class SavingsAccount {
+        -double interestRate
+        -double minimumBalance
+        +SavingsAccount(number, owner, balance, rate, min)
+        +withdraw(amount) void
+        +applyInterest() void
+        +display() void
+        +getType() string
+    }
+
+    class CheckingAccount {
+        -double overdraftLimit
+        -double transactionFee
+        +CheckingAccount(number, owner, balance, limit, fee)
+        +withdraw(amount) void
+        +display() void
+        +getType() string
+    }
+
+    class Customer {
+        -string customerId
+        -string name
+        -string pin
+        +Customer(id, name, pin)
+        +verifyPin(entered) bool
+        +addAccount(Account* a) void
+        +removeAccount(number) void
+        +findAccount(number) Account*
+        +listAccounts() void
+        +getTotalBalance() double
+    }
+
+    class Bank {
+        -vector~Customer~ customers
+        +run() void
+        +signup(name, id, pin) void
+        +login(id, pin) Customer*
+        +openAccount() void
+        +closeAccount() void
+        +deposit() void
+        +withdraw() void
+        +loadData() void
+        +saveData() void
+    }
+
+    class InsufficientFundsException
+    class InvalidAmountException
+    class AccountNotFoundException
+    class AuthenticationException
+
+    Account <|-- SavingsAccount : inherits
+    Account <|-- CheckingAccount : inherits
+    Customer "1" *-- "0..*" Account : owns
+    Bank "1" *-- "0..*" Customer : owns
+    Account ..> InsufficientFundsException
+    Account ..> InvalidAmountException
+    Account ..> AccountNotFoundException
+    Bank ..> AuthenticationException
+```
+
 ## Build and Run
 
 ### Prerequisites
