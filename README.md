@@ -10,7 +10,7 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 | Course | OOP II |
 | Language | C++ (C++11 or later) |
 | Toolchain | g++ |
-| Current version | 0.5.0 - bank manager |
+| Current version | 0.6.0 - customer PIN and accounts |
 
 ## Team Credits
 
@@ -79,8 +79,22 @@ A console-based **Bank Account Manager** written in C++ for the **OOP II** final
 - [x] Runtime test: `findAccount("Mina")` followed by a `500.00` deposit updates the balance to `1500.00`
 - [x] Runtime test: `findAccount("Unknown")` returns `nullptr`
 
+### Customer milestone
+
+- [x] `Customer` stores `customerId`, `name`, `pin`, and `std::vector<Account*>`
+- [x] Constructor initialises the identity fields through an initializer list
+- [x] `verifyPin(enteredPin)` compares the supplied PIN with the stored PIN
+- [x] `addAccount(Account*)` transfers account ownership to the customer
+- [x] `findAccount(accountNumber)` returns the matching account or `nullptr`
+- [x] `listAccounts() const` calls `displayInfo()` polymorphically
+- [x] `getTotalBalance() const` sums all owned account balances
+- [x] `~Customer()` deletes every owned account; copying is disabled
+- [x] `Account::getAccountNumber()` and `Account::getBalance()` support lookup and totals
+- [x] Runtime test: `C101` / `Mukhsinjon` / PIN `1234`; correct PIN accepted, wrong PIN rejected, total balance `2000.00`
+
 ### Planned milestones
 
+- [ ] Bank-level customer management (signup, login, customer-owned accounts)
 - [ ] Interactive account creation, lookup, listing, and closing
 - [ ] Deposit/withdraw flows with interactive input
 - [ ] Transaction history and reporting
@@ -97,7 +111,8 @@ bank-account-manager/
 |   |-- SavingsAccount.h             # Interest-bearing concrete account
 |   |-- CheckingAccount.h            # Overdraft-enabled concrete account
 |   |-- InsufficientFundsException.h # Custom withdrawal exception
-|   `-- Bank.h                       # Owns accounts through Account pointers
+|   |-- Bank.h                       # Owns accounts through Account pointers
+|   `-- Customer.h                   # Customer PIN and account ownership
 |-- src/
 |   `-- main.cpp                     # CLI entry point and account smoke tests
 |-- .gitignore
@@ -206,12 +221,13 @@ g++ -Iinclude src/main.cpp -o bank_app
 bank_app.exe      # Windows PowerShell or CMD
 ```
 
-The current smoke test exercises the concrete account types, the exception path, and the bank manager:
+The current smoke test exercises the concrete account types, the exception path, the bank manager, and the customer:
 
 - `SavingsAccount("Mina", 1000.0, 0.05)` applies one interest posting and prints `1050.00`.
 - `CheckingAccount("Jin", 200.0, 300.0)` allows a `400.00` withdrawal down to `-200.00`.
 - A further `200.00` withdrawal throws `InsufficientFundsException`; `main()` catches it and prints the message and account details.
 - `Bank` owns dynamically allocated savings and checking accounts, displays them polymorphically, finds `Mina`, deposits `500.00`, and reports an unknown-owner lookup as `nullptr`.
+- `Customer("C101", "Mukhsinjon", "1234")` verifies a correct and an incorrect PIN, owns a savings and checking account, lists them polymorphically, and reports a total balance of `2000.00`.
 
 ### Recommended strict build (optional)
 
@@ -229,12 +245,16 @@ g++ -std=c++14 -Wall -Wextra -pedantic -Iinclude src/main.cpp -o bank_app
 - Over-limit withdrawals throw `InsufficientFundsException`, which carries the requested amount and the balance at the time of the failure.
 - `Bank` takes ownership of accounts added through `addAccount()`. Its destructor deletes each pointer, and its virtual base-class destructor ensures the derived destructor runs.
 - `Bank` copying is disabled because duplicating the raw pointers would lead to double deletion.
+- `Customer` also takes ownership of accounts added through `addAccount()` and deletes them in `~Customer()`. Do not add the same `Account*` to both a `Bank` and a `Customer`, because that would cause a double deletion.
+- `Customer` stores its PIN privately and exposes only `verifyPin()`; the PIN itself is never returned by an accessor.
+- `Customer` copying is disabled for the same raw-pointer ownership reason as `Bank`.
 - Account numbers are generated as `SAV-1001`, `CHK-2001`, and so on.
 - The virtual destructor guarantees that deleting a derived account through an `Account*` runs the full destructor chain.
 
 ## Next Steps
 
-1. Replace the banner-only flow with an interactive account-management menu.
-2. Add interactive account creation, lookup, listing, and closing.
-3. Catch and report exceptions in the menu's withdrawal flow.
-4. Add transaction records and file persistence.
+1. Refactor `Bank` to own `Customer` objects and delegate account operations, matching the UML.
+2. Replace the banner-only flow with an interactive account-management menu.
+3. Add interactive account creation, lookup, listing, and closing with PIN login.
+4. Catch and report exceptions in the menu's withdrawal flow.
+5. Add transaction records and file persistence.

@@ -32,9 +32,17 @@ public:
     // runs the complete derived-class destructor chain.
     virtual ~Account() = default;
 
-    // Read-only access used by Bank lookups and reporting.
+    // Read-only access used by Bank and Customer lookups and reporting.
     const std::string& getHolderName() const {
         return holderName;
+    }
+
+    const std::string& getAccountNumber() const {
+        return accountNumber;
+    }
+
+    double getBalance() const {
+        return balance;
     }
 
     // Add amount to the balance. Implementations must reject amounts

@@ -1,6 +1,7 @@
 #include "Account.h"
 #include "Bank.h"
 #include "CheckingAccount.h"
+#include "Customer.h"
 #include "InsufficientFundsException.h"
 #include "SavingsAccount.h"
 
@@ -12,7 +13,7 @@
 namespace {
 
 const char* const kAppName = "Bank Account Manager";
-const char* const kVersion = "0.5.0";
+const char* const kVersion = "0.6.0";
 const int kRuleWidth = 60;
 
 void printRule(char symbol = '-') {
@@ -107,6 +108,29 @@ void runBankManagerTest() {
     printRule('-');
 }
 
+void runCustomerTest() {
+    std::cout << "\n Customer Test\n";
+    printRule('-');
+
+    Customer customer("C101", "Mukhsinjon", "1234");
+    customer.addAccount(new SavingsAccount("Mukhsinjon", 1500.0, 0.04));
+    customer.addAccount(new CheckingAccount("Mukhsinjon", 500.0, 250.0));
+
+    std::cout << " Customer: C101 - Mukhsinjon\n";
+    std::cout << " verifyPin(\"1234\") -> "
+              << (customer.verifyPin("1234") ? "true" : "false") << '\n';
+    std::cout << " verifyPin(\"0000\") -> "
+              << (customer.verifyPin("0000") ? "true" : "false") << '\n';
+
+    std::cout << "\n Accounts owned by the customer:\n";
+    customer.listAccounts();
+
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "\n Total balance: " << customer.getTotalBalance() << '\n';
+    std::cout << "\n Customer scope ends; ~Customer() deletes both accounts.\n";
+    printRule('-');
+}
+
 }  // namespace
 
 int main() {
@@ -115,6 +139,7 @@ int main() {
     runSavingsAccountTest();
     runCheckingAccountTest();
     runBankManagerTest();
+    runCustomerTest();
 
     std::cout << "\n Press Enter to exit...";
     std::cout.flush();
