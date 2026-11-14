@@ -122,7 +122,8 @@ void runCustomerTest() {
     customer.addAccount(new SavingsAccount("Mukhsinjon", 1500.0, 0.04));
     customer.addAccount(new CheckingAccount("Mukhsinjon", 500.0, 250.0));
 
-    std::cout << " Customer: C101 - Mukhsinjon\n";
+    std::cout << " Customer: " << customer.getCustomerId()
+              << " - " << customer.getName() << '\n';
     std::cout << " verifyPin(\"1234\") -> "
               << (customer.verifyPin("1234") ? "true" : "false") << '\n';
     std::cout << " verifyPin(\"0000\") -> "

@@ -22,10 +22,10 @@ private:
     std::vector<Account*> accounts;
 
 public:
-    Customer(std::string id, std::string n, std::string p)
+    Customer(std::string id, std::string customerName, std::string customerPin)
         : customerId(std::move(id)),
-          name(std::move(n)),
-          pin(std::move(p)) {}
+          name(std::move(customerName)),
+          pin(std::move(customerPin)) {}
 
     // Customer owns its accounts, so copying raw pointers would cause
     // double deletion. Copying is therefore disabled.
@@ -37,6 +37,14 @@ public:
         for (Account* account : accounts) {
             delete account;
         }
+    }
+
+    std::string getCustomerId() const {
+        return customerId;
+    }
+
+    std::string getName() const {
+        return name;
     }
 
     bool verifyPin(const std::string& enteredPin) const {
@@ -51,9 +59,9 @@ public:
     }
 
     // Return the account with the matching account number, or nullptr.
-    Account* findAccount(const std::string& accNum) {
+    Account* findAccount(const std::string& accountNumber) {
         for (Account* account : accounts) {
-            if (account->getAccountNumber() == accNum) {
+            if (account->getAccountNumber() == accountNumber) {
                 return account;
             }
         }
