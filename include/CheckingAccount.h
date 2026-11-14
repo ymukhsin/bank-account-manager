@@ -50,6 +50,10 @@ public:
         balance -= amount;
     }
 
+    std::string getType() const override {
+        return "Checking";
+    }
+
     void displayInfo() override {
         std::ios_base::fmtflags previousFlags = std::cout.flags();
         std::streamsize previousPrecision = std::cout.precision();

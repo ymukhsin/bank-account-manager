@@ -45,6 +45,9 @@ public:
         return balance;
     }
 
+    // Return the concrete account type name.
+    virtual std::string getType() const = 0;
+
     // Add amount to the balance. Implementations must reject amounts
     // that are zero or negative.
     virtual void deposit(double amount) = 0;

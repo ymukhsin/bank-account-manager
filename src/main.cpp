@@ -20,6 +20,10 @@ void printRule(char symbol = '-') {
     std::cout << std::string(kRuleWidth, symbol) << '\n';
 }
 
+void printAccountType(const Account& account) {
+    std::cout << " Account type: " << account.getType() << '\n';
+}
+
 void printBanner() {
     std::cout << '\n';
     printRule('=');
@@ -50,6 +54,7 @@ void runSavingsAccountTest() {
     printRule('-');
 
     SavingsAccount account("Mina", 1000.0, 0.05);
+    printAccountType(account);
     account.addInterest();
     account.displayInfo();
 
@@ -61,6 +66,7 @@ void runCheckingAccountTest() {
     printRule('-');
 
     CheckingAccount account("Jin", 200.0, 300.0);
+    printAccountType(account);
 
     std::cout << " Attempting withdrawal: 400.00 (within overdraft)\n";
     account.withdraw(400.0);
