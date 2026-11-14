@@ -121,6 +121,13 @@ bank-account-manager/
 
 ## System Architecture & UML Diagram
 
+Key relationships for the November 18 design review:
+
+- **Abstraction:** `Account` defines the common interface (`deposit`, `withdraw`, `display`) and hides its state, so clients depend on the contract rather than concrete account types.
+- **Inheritance:** `SavingsAccount` and `CheckingAccount` publicly derive from `Account`, sharing its state and implementing its virtual operations.
+- **Composition:** `Bank` owns zero or more `Customer` objects, and each `Customer` owns zero or more `Account` objects; the filled-diamond associations represent exclusive ownership.
+- **Polymorphism:** `Account*` pointers stored by `Customer` dispatch to the appropriate derived `withdraw()` and `display()` implementation at runtime.
+
 ```mermaid
 classDiagram
     class Account {
