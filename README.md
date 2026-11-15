@@ -121,88 +121,111 @@ bank-account-manager/
 
 ## System Architecture & UML Diagram
 
-Key relationships for the November 18 design review:
-
-- **Abstraction:** `Account` defines the common interface (`deposit`, `withdraw`, `display`) and hides its state, so clients depend on the contract rather than concrete account types.
-- **Inheritance:** `SavingsAccount` and `CheckingAccount` publicly derive from `Account`, sharing its state and implementing its virtual operations.
-- **Composition:** `Bank` owns zero or more `Customer` objects, and each `Customer` owns zero or more `Account` objects; the filled-diamond associations represent exclusive ownership.
-- **Polymorphism:** `Account*` pointers stored by `Customer` dispatch to the appropriate derived `withdraw()` and `display()` implementation at runtime.
-
 ```mermaid
 classDiagram
-    class Account {
-        <<abstract>>
-        -string accountNumber
-        -string ownerName
-        -double balance
-        +Account(number, owner, initialBalance)
-        +deposit(amount) void
-        +withdraw(amount) void
-        +display() void
-        +getType() string
-        +getBalance() double
-        +getAccountNumber() string
-    }
+    direction TB
 
-    class SavingsAccount {
-        -double interestRate
-        -double minimumBalance
-        +SavingsAccount(number, owner, balance, rate, min)
-        +withdraw(amount) void
-        +applyInterest() void
-        +display() void
-        +getType() string
-    }
-
-    class CheckingAccount {
-        -double overdraftLimit
-        -double transactionFee
-        +CheckingAccount(number, owner, balance, limit, fee)
-        +withdraw(amount) void
-        +display() void
-        +getType() string
+    class Bank {
+        -string bankName
+        -vector~Customer*~ customers
+        +Bank(string name)
+        +~Bank()
+        +signup(string id, string name, string pin) void
+        +login(string id, string pin) Customer*
+        +findCustomer(string customerId) Customer*
+        +openAccount(string customerId, Account* account) void
+        +closeAccount(string accountNumber) void
+        +findAccount(string accountNumber) Account*
+        +deposit(string accountNumber, double amount) void
+        +withdraw(string accountNumber, double amount) void
+        +saveData(string filePath) void
+        +loadData(string filePath) void
+        +run() void
     }
 
     class Customer {
         -string customerId
         -string name
         -string pin
-        +Customer(id, name, pin)
-        +verifyPin(entered) bool
-        +addAccount(Account* a) void
-        +removeAccount(number) void
-        +findAccount(number) Account*
+        -vector~Account*~ accounts
+        +Customer(string id, string name, string pin)
+        +~Customer()
+        +verifyPin(string enteredPin) bool
+        +addAccount(Account* account) void
+        +removeAccount(string accountNumber) void
+        +findAccount(string accountNumber) Account*
         +listAccounts() void
         +getTotalBalance() double
     }
 
-    class Bank {
-        -vector~Customer~ customers
-        +run() void
-        +signup(name, id, pin) void
-        +login(id, pin) Customer*
-        +openAccount() void
-        +closeAccount() void
-        +deposit() void
-        +withdraw() void
-        +loadData() void
-        +saveData() void
+    class Account {
+        <<abstract>>
+        #string accountNumber
+        #string ownerName
+        #double balance
+        +Account(string number, string owner, double initialBalance)
+        +virtual ~Account()
+        +deposit(double amount) void
+        +withdraw(double amount)* void
+        +getBalance() double
+        +getAccountNumber() string
+        +getType() string*
+        +displayInfo() void*
     }
 
-    class InsufficientFundsException
+    class SavingsAccount {
+        -double interestRate
+        +SavingsAccount(string number, string owner, double balance, double rate)
+        +withdraw(double amount) void
+        +addInterest() void
+        +getType() string
+        +displayInfo() void
+    }
+
+    class CheckingAccount {
+        -double overdraftLimit
+        +CheckingAccount(string number, string owner, double balance, double limit)
+        +withdraw(double amount) void
+        +getType() string
+        +displayInfo() void
+    }
+
+    class std_exception {
+        <<C++ standard library>>
+    }
+    class BankingException {
+        -string message
+        +BankingException(string msg)
+        +what() const char*
+    }
     class InvalidAmountException
+    class InsufficientFundsException
     class AccountNotFoundException
     class AuthenticationException
 
+    Bank "1" *-- "0..*" Customer : manages
+    Customer "1" *-- "0..*" Account : owns
     Account <|-- SavingsAccount : inherits
     Account <|-- CheckingAccount : inherits
-    Customer "1" *-- "0..*" Account : owns
-    Bank "1" *-- "0..*" Customer : owns
-    Account ..> InsufficientFundsException
-    Account ..> InvalidAmountException
-    Account ..> AccountNotFoundException
-    Bank ..> AuthenticationException
+
+    std_exception <|-- BankingException
+    BankingException <|-- InvalidAmountException
+    BankingException <|-- InsufficientFundsException
+    BankingException <|-- AccountNotFoundException
+    BankingException <|-- AuthenticationException
+
+    Account ..> InvalidAmountException : throws
+    Account ..> InsufficientFundsException : throws
+    Bank ..> AccountNotFoundException : throws
+    Bank ..> AuthenticationException : throws
 ```
+
+Key relationships for the November 18 design review:
+
+- **Raw-pointer composition:** `Bank` owns zero or more `Customer*` objects in `std::vector<Customer*>`, and each `Customer` owns zero or more `Account*` objects in `std::vector<Account*>`; both destructors delete their owned pointers.
+- **Exception hierarchy:** `BankingException` publicly inherits from `std::exception`; `InvalidAmountException`, `InsufficientFundsException`, `AccountNotFoundException`, and `AuthenticationException` inherit from `BankingException`.
+- **Abstraction and pure virtual functions:** `Account` is abstract, with `withdraw()`, `getType()`, and `displayInfo()` pure virtual; `SavingsAccount` and `CheckingAccount` provide the concrete overrides.
+- **Persistence:** `Bank::saveData(filePath)` and `Bank::loadData(filePath)` use `<fstream>` to write and read customer and account data.
 
 ## Build and Run
 

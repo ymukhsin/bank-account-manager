@@ -1,73 +1,96 @@
 classDiagram
-    class Account {
-        <<abstract>>
-        -string accountNumber
-        -string ownerName
-        -double balance
-        +Account(number, owner, initialBalance)
-        +deposit(amount) void
-        +withdraw(amount) void
-        +display() void
-        +getType() string
-        +getBalance() double
-        +getAccountNumber() string
-    }
+    direction TB
 
-    class SavingsAccount {
-        -double interestRate
-        -double minimumBalance
-        +SavingsAccount(number, owner, balance, rate, min)
-        +withdraw(amount) void
-        +applyInterest() void
-        +display() void
-        +getType() string
-    }
-
-    class CheckingAccount {
-        -double overdraftLimit
-        -double transactionFee
-        +CheckingAccount(number, owner, balance, limit, fee)
-        +withdraw(amount) void
-        +display() void
-        +getType() string
+    class Bank {
+        -string bankName
+        -vector~Customer*~ customers
+        +Bank(string name)
+        +~Bank()
+        +signup(string id, string name, string pin) void
+        +login(string id, string pin) Customer*
+        +findCustomer(string customerId) Customer*
+        +openAccount(string customerId, Account* account) void
+        +closeAccount(string accountNumber) void
+        +findAccount(string accountNumber) Account*
+        +deposit(string accountNumber, double amount) void
+        +withdraw(string accountNumber, double amount) void
+        +saveData(string filePath) void
+        +loadData(string filePath) void
+        +run() void
     }
 
     class Customer {
         -string customerId
         -string name
         -string pin
-        +Customer(id, name, pin)
-        +verifyPin(entered) bool
-        +addAccount(Account* a) void
-        +removeAccount(number) void
-        +findAccount(number) Account*
+        -vector~Account*~ accounts
+        +Customer(string id, string name, string pin)
+        +~Customer()
+        +verifyPin(string enteredPin) bool
+        +addAccount(Account* account) void
+        +removeAccount(string accountNumber) void
+        +findAccount(string accountNumber) Account*
         +listAccounts() void
         +getTotalBalance() double
     }
 
-    class Bank {
-        -vector~Customer~ customers
-        +run() void
-        +signup(name, id, pin) void
-        +login(id, pin) Customer*
-        +openAccount() void
-        +closeAccount() void
-        +deposit() void
-        +withdraw() void
-        +loadData() void
-        +saveData() void
+    class Account {
+        <<abstract>>
+        #string accountNumber
+        #string ownerName
+        #double balance
+        +Account(string number, string owner, double initialBalance)
+        +virtual ~Account()
+        +deposit(double amount) void
+        +withdraw(double amount)* void
+        +getBalance() double
+        +getAccountNumber() string
+        +getType() string*
+        +displayInfo() void*
     }
 
-    class InsufficientFundsException
+    class SavingsAccount {
+        -double interestRate
+        +SavingsAccount(string number, string owner, double balance, double rate)
+        +withdraw(double amount) void
+        +addInterest() void
+        +getType() string
+        +displayInfo() void
+    }
+
+    class CheckingAccount {
+        -double overdraftLimit
+        +CheckingAccount(string number, string owner, double balance, double limit)
+        +withdraw(double amount) void
+        +getType() string
+        +displayInfo() void
+    }
+
+    class std_exception {
+        <<C++ standard library>>
+    }
+    class BankingException {
+        -string message
+        +BankingException(string msg)
+        +what() const char*
+    }
     class InvalidAmountException
+    class InsufficientFundsException
     class AccountNotFoundException
     class AuthenticationException
 
+    Bank "1" *-- "0..*" Customer : manages
+    Customer "1" *-- "0..*" Account : owns
     Account <|-- SavingsAccount : inherits
     Account <|-- CheckingAccount : inherits
-    Customer "1" *-- "0..*" Account : owns
-    Bank "1" *-- "0..*" Customer : owns
-    Account ..> InsufficientFundsException
-    Account ..> InvalidAmountException
-    Account ..> AccountNotFoundException
-    Bank ..> AuthenticationException
+
+    std_exception <|-- BankingException
+    BankingException <|-- InvalidAmountException
+    BankingException <|-- InsufficientFundsException
+    BankingException <|-- AccountNotFoundException
+    BankingException <|-- AuthenticationException
+
+    Account ..> InvalidAmountException : throws
+    Account ..> InsufficientFundsException : throws
+    Bank ..> AccountNotFoundException : throws
+    Bank ..> AuthenticationException : throws
