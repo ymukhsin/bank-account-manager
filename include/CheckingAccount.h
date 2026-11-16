@@ -2,7 +2,7 @@
 #define BANK_ACCOUNT_MANAGER_CHECKING_ACCOUNT_H
 
 #include "Account.h"
-#include "InsufficientFundsException.h"
+#include "Exceptions.h"
 
 #include <iomanip>
 #include <iostream>
@@ -32,20 +32,14 @@ public:
         : Account(generateAccountNumber(), std::move(ownerName), initialBalance),
           overdraftLimit(limit) {}
 
-    void deposit(double amount) override {
-        if (amount > 0.0) {
-            balance += amount;
-        }
-    }
-
     // A withdrawal is allowed while the resulting balance stays at or
     // above the negative overdraft limit; otherwise it is rejected.
     void withdraw(double amount) override {
         if (amount <= 0.0) {
-            return;
+            throw InvalidAmountException();
         }
-        if ((balance - amount) < -overdraftLimit) {
-            throw InsufficientFundsException(amount, balance);
+        if (amount > balance + overdraftLimit) {
+            throw InsufficientFundsException();
         }
         balance -= amount;
     }

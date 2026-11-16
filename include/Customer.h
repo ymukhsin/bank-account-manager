@@ -2,6 +2,7 @@
 #define BANK_ACCOUNT_MANAGER_CUSTOMER_H
 
 #include "Account.h"
+#include "Exceptions.h"
 
 #include <iostream>
 #include <string>
@@ -56,6 +57,19 @@ public:
         if (a != nullptr) {
             accounts.push_back(a);
         }
+    }
+
+    // Remove and delete an account; throw if the number is unknown.
+    void removeAccount(const std::string& accountNumber) {
+        for (std::vector<Account*>::iterator it = accounts.begin();
+             it != accounts.end(); ++it) {
+            if ((*it)->getAccountNumber() == accountNumber) {
+                delete *it;
+                accounts.erase(it);
+                return;
+            }
+        }
+        throw AccountNotFoundException();
     }
 
     // Return the account with the matching account number, or nullptr.

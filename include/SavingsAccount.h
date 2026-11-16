@@ -2,7 +2,7 @@
 #define BANK_ACCOUNT_MANAGER_SAVINGS_ACCOUNT_H
 
 #include "Account.h"
-#include "InsufficientFundsException.h"
+#include "Exceptions.h"
 
 #include <iomanip>
 #include <iostream>
@@ -38,18 +38,12 @@ public:
         balance += balance * interestRate;
     }
 
-    void deposit(double amount) override {
-        if (amount > 0.0) {
-            balance += amount;
-        }
-    }
-
     void withdraw(double amount) override {
         if (amount <= 0.0) {
-            return;
+            throw InvalidAmountException();
         }
         if (amount > balance) {
-            throw InsufficientFundsException(amount, balance);
+            throw InsufficientFundsException();
         }
         balance -= amount;
     }

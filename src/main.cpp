@@ -2,7 +2,7 @@
 #include "Bank.h"
 #include "CheckingAccount.h"
 #include "Customer.h"
-#include "InsufficientFundsException.h"
+#include "Exceptions.h"
 #include "SavingsAccount.h"
 
 #include <iomanip>
@@ -31,7 +31,7 @@ void printBanner() {
     std::cout << "                   OOP II Final Project\n";
     printRule('=');
     std::cout << " Version : " << kVersion << '\n';
-    std::cout << " Build   : C++14 / g++\n";
+    std::cout << " Build   : C++17 / g++\n";
     printRule('-');
 }
 
@@ -45,7 +45,7 @@ void printInterfaceChecks() {
     std::cout << " [OK] CheckingAccount derives from Account: "
               << (std::is_base_of<Account, CheckingAccount>::value ? "yes" : "no")
               << '\n';
-    std::cout << " [OK] deposit(), withdraw(), and displayInfo() overridden\n";
+    std::cout << " [OK] withdraw(), getType(), and displayInfo() overridden\n";
     printRule('-');
 }
 
@@ -76,9 +76,6 @@ void runCheckingAccountTest() {
         account.withdraw(200.0);
     } catch (const InsufficientFundsException& e) {
         std::cout << "\n [CATCH] " << e.what() << '\n';
-        std::cout << std::fixed << std::setprecision(2);
-        std::cout << " Requested Amount : " << e.getRequestedAmount() << '\n';
-        std::cout << " Current Balance  : " << e.getCurrentBalance() << '\n';
     }
 
     account.displayInfo();

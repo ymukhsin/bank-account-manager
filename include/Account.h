@@ -1,6 +1,8 @@
 #ifndef BANK_ACCOUNT_MANAGER_ACCOUNT_H
 #define BANK_ACCOUNT_MANAGER_ACCOUNT_H
 
+#include "Exceptions.h"
+
 #include <string>
 #include <utility>
 
@@ -37,7 +39,7 @@ public:
         return holderName;
     }
 
-    const std::string& getAccountNumber() const {
+    std::string getAccountNumber() const {
         return accountNumber;
     }
 
@@ -48,13 +50,16 @@ public:
     // Return the concrete account type name.
     virtual std::string getType() const = 0;
 
-    // Add amount to the balance. Implementations must reject amounts
-    // that are zero or negative.
-    virtual void deposit(double amount) = 0;
+    // Validate and add a positive amount to the balance.
+    void deposit(double amount) {
+        if (amount <= 0.0) {
+            throw InvalidAmountException();
+        }
+        balance += amount;
+    }
 
-    // Remove amount from the balance. Implementations must reject
-    // amounts that are zero or negative and must not let the balance
-    // fall below the account type's permitted minimum.
+    // Remove amount from the balance. Implementations reject invalid
+    // amounts and must not let the balance fall below their limit.
     virtual void withdraw(double amount) = 0;
 
     // Print a formatted summary of this account to std::cout.
