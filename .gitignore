@@ -36,6 +36,9 @@ dist/
 *.gcno
 *.gcov
 
+# Runtime data
+bank_data.txt
+
 # Logs and temporary files
 *.log
 *.tmp
