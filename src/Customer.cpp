@@ -3,17 +3,16 @@
 #include "Exceptions.h"
 
 #include <iostream>
-#include <utility>
 
 using namespace std;
 
 Customer::Customer(string id, string name,
                    string phone, string mail, string pwd)
-    : customerId(move(id)),
-      fullName(move(name)),
-      phoneNumber(move(phone)),
-      email(move(mail)),
-      password(move(pwd)) {}
+    : customerId(id),
+      fullName(name),
+      phoneNumber(phone),
+      email(mail),
+      password(pwd) {}
 
 Customer::~Customer() {
     for (Account* account : accounts) {

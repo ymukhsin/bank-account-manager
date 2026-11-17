@@ -1,11 +1,9 @@
 #include "Account.h"
 
-#include <utility>
-
 using namespace std;
 
 Account::Account(string number, double initialBalance)
-    : accountNumber(move(number)), balance(initialBalance) {}
+    : accountNumber(number), balance(initialBalance) {}
 
 void Account::deposit(double amount) {
     if (amount <= 0.0) {

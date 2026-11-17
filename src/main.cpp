@@ -6,8 +6,8 @@
 using namespace std;
 
 int main() {
-    Bank bank("deu", "02-123-4567",
-              "bank@example.com", "123 Main Street, Seoul");
+    Bank bank("deu", "01000000000",
+              "deu@example.com", "Busan, South Korea");
 
     try {
         bank.loadData("bank_data.txt");
@@ -21,7 +21,7 @@ int main() {
 
     try {
         bank.saveData("bank_data.txt");
-        cout << "Data saved to bank_data.txt.\n";
+        cout << "Data saved automatically.\n";
     } catch (const BankingException& e) {
         cout << "Could not save data: " << e.what() << '\n';
         return 1;

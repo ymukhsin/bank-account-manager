@@ -1,13 +1,12 @@
 #include "CheckingAccount.h"
 
 #include <iostream>
-#include <utility>
 
 using namespace std;
 
 CheckingAccount::CheckingAccount(string number, double initialBalance,
                                  double limit, double fee)
-    : Account(move(number), initialBalance),
+    : Account(number, initialBalance),
       overdraftLimit(limit),
       transactionFee(fee) {}
 

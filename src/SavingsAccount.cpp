@@ -1,13 +1,12 @@
 #include "SavingsAccount.h"
 
 #include <iostream>
-#include <utility>
 
 using namespace std;
 
 SavingsAccount::SavingsAccount(string number, double initialBalance,
                                double rate, double minimum)
-    : Account(move(number), initialBalance),
+    : Account(number, initialBalance),
       interestRate(rate),
       minimumBalance(minimum) {}
 
