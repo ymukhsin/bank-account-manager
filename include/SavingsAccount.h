@@ -24,6 +24,7 @@ public:
 
     double getInterestRate() const;
     double getMinimumBalance() const;
+    void setInterestRate(double rate);
 };
 
 #endif // BANK_ACCOUNT_MANAGER_SAVINGS_ACCOUNT_H

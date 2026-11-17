@@ -44,3 +44,10 @@ double SavingsAccount::getInterestRate() const {
 double SavingsAccount::getMinimumBalance() const {
     return minimumBalance;
 }
+
+void SavingsAccount::setInterestRate(double rate) {
+    if (rate < 0.0) {
+        throw InvalidAmountException("Interest rate cannot be negative.");
+    }
+    interestRate = rate;
+}

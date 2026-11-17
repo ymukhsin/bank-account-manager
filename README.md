@@ -1,6 +1,6 @@
 # Bank Account Manager
 
-A console-based **Bank Account Manager** built in C++17 for the **OOP II** final project. The application provides separate Bank Manager and Customer roles, auto-generates customer IDs and account numbers, supports savings and checking accounts, and persists all bank data between runs.
+A console-based **Bank Account Manager** built in C++17 for the **OOP II** final project. The application separates Bank Manager and Customer roles, authenticates customers with passwords, auto-generates customer IDs and account numbers, controls interest rates and transaction fees at the bank level, and persists all data between runs.
 
 ## Project Information
 
@@ -11,7 +11,7 @@ A console-based **Bank Account Manager** built in C++17 for the **OOP II** final
 | Instructor | Professor Asrat Kaleab Taye |
 | Language | C++17 |
 | Toolchain | g++ |
-| Version | 1.1.0 |
+| Version | 1.2.0 |
 
 ## Team Credits
 
@@ -25,17 +25,20 @@ A console-based **Bank Account Manager** built in C++17 for the **OOP II** final
 
 ## Project Overview
 
-`Bank` owns customers through `Customer*` pointers, and each customer owns accounts through `Account*` pointers. Customers are assigned automatic 4-digit IDs starting at `1001`, and accounts receive automatic 8-digit numbers starting at `10000001`. Checking accounts use a default transaction fee of `2.0`, which the Bank Manager can update for future accounts or an existing checking account.
+`Bank` owns customers through `Customer*` pointers, and each customer owns accounts through `Account*` pointers. New customers receive an automatic 4-digit ID and choose a password during registration. New bank accounts receive automatic 8-digit account numbers.
+
+Customers open their own accounts. Savings accounts receive the Bank's current default interest rate, and checking accounts receive its current default transaction fee. The Bank Manager can update those defaults and apply the new values to every existing account.
 
 ## OOP Design Summary
 
-- **Encapsulation:** State such as customer lists, account balances, ID counters, and the default transaction fee is private or protected and accessed through public operations.
-- **Inheritance:** `SavingsAccount` and `CheckingAccount` publicly inherit from `Account`.
+- **Encapsulation:** Customer passwords, account balances, ID counters, default rates, and collections are private or protected and accessed through public operations.
+- **Inheritance:** `SavingsAccount` and `CheckingAccount` inherit publicly from `Account`.
 - **Abstraction:** `Account` is abstract and declares `withdraw()`, `getType()`, and `display()` as pure virtual functions.
-- **Runtime polymorphism:** Accounts are managed as `Account*`; virtual dispatch selects the correct withdrawal, interest, and display behavior.
-- **Custom exceptions:** `BankingException` derives from `std::runtime_error`, with `InvalidAmountException`, `InsufficientFundsException`, and `AccountNotFoundException` as derived types.
-- **File I/O:** `Bank::saveData()` and `Bank::loadData()` use `<fstream>`, `getline`, `find`, and `substr` to persist customers, accounts, balances, and account-specific settings.
-- **Memory ownership:** Raw pointers are used exclusively. `~Bank()` deletes its customers and `~Customer()` deletes its accounts.
+- **Runtime polymorphism:** Accounts are managed through `Account*`, and `dynamic_cast` is used for type-specific rate and fee updates.
+- **Authentication:** `Customer::verifyPassword()` and `Bank::loginCustomer()` validate customer credentials by email or phone number.
+- **Custom exceptions:** `BankingException` derives from `std::runtime_error`; `InvalidAmountException`, `InsufficientFundsException`, and `AccountNotFoundException` derive from it.
+- **File I/O:** `saveData()` and `loadData()` persist bank, customer (including password), and account records using `<fstream>`, `getline`, `find`, and `substr`.
+- **Memory ownership:** Raw pointers only. `~Bank()` deletes customers and `~Customer()` deletes accounts.
 
 ## CLI Features
 
@@ -50,18 +53,16 @@ A console-based **Bank Account Manager** built in C++17 for the **OOP II** final
 ### Bank Manager Menu
 
 ```text
-1) Add New Customer
-2) Open Savings Account for Customer
-3) Open Checking Account for Customer
-4) View Customer Accounts & Total Balance
-5) Apply Interest to Savings Account
+1) View All Customers & Accounts
+2) Search Customer Accounts & Total Balance
+3) Update Savings Interest Rate (All Accounts)
+4) Update Checking Transaction Fee (All Accounts)
+5) Apply Interest to Savings Accounts
 6) Close Customer Account
-7) View All Customers & Accounts
-8) Update Checking Transaction Fee
 0) Logout to Main Menu
 ```
 
-Manager credentials are displayed on the login screen:
+Manager login credentials are displayed on the login screen:
 
 ```text
 Bank Name: DEU Bank
@@ -76,7 +77,7 @@ Password:  admin123
 0) Back to Main Menu
 ```
 
-New customers are assigned an ID automatically and taken directly to their dashboard. Existing customers log in with their customer ID and matching email or phone number.
+Registration asks for full name, phone number, email, and password, then generates and displays the customer ID. Existing-customer login uses email or phone number plus password.
 
 ### Customer Dashboard
 
@@ -89,7 +90,7 @@ New customers are assigned an ID automatically and taken directly to their dashb
 0) Logout to Main Menu
 ```
 
-Customer deposits and withdrawals verify account ownership through `Customer::findAccount()` before performing the transaction. Input helpers handle invalid numeric entries without skipping later `getline` input, and all actions are protected by exception handling.
+Opening a savings account asks only for the initial deposit and minimum balance; the interest rate comes from the Bank. Opening a checking account asks only for the initial deposit and overdraft limit; the transaction fee comes from the Bank. Deposits and withdrawals verify ownership through `Customer::findAccount()`.
 
 ## Project Structure
 
@@ -129,14 +130,16 @@ classDiagram
         -string address
         -int nextCustomerId
         -long nextAccountNumber
+        -double defaultInterestRate
         -double defaultTransactionFee
         -vector~Customer*~ customers
         -string generateCustomerId()
         -string generateAccountNumber()
         +Bank(string name, string phone, string email, string address)
-        +addCustomer(string name, string phone, string email) string
+        +addCustomer(string name, string phone, string email, string password) string
         +findCustomer(string customerId) Customer*
-        +openSavingsAccount(string customerId, double initialBalance, double rate, double minimum) string
+        +loginCustomer(string emailOrPhone, string password) Customer*
+        +openSavingsAccount(string customerId, double initialBalance, double minimum) string
         +openCheckingAccount(string customerId, double initialBalance, double limit) string
         +openAccount(string customerId, Account* account) void
         +closeAccount(string accountNumber) void
@@ -144,6 +147,8 @@ classDiagram
         +deposit(string accountNumber, double amount) void
         +withdraw(string accountNumber, double amount) void
         +viewAllCustomers() void
+        +updateAllInterestRates(double newRate) void
+        +updateAllTransactionFees(double newFee) void
         +saveData(string filePath) void
         +loadData(string filePath) void
         +run() void
@@ -154,13 +159,16 @@ classDiagram
         -string fullName
         -string phoneNumber
         -string email
+        -string password
         -vector~Account*~ accounts
-        +Customer(string id, string name, string phone, string email)
+        +Customer(string id, string name, string phone, string email, string password)
         +addAccount(Account* account) void
         +removeAccount(string accountNumber) void
         +findAccount(string accountNumber) Account*
         +listAccounts() void
         +getTotalBalance() double
+        +getPassword() string
+        +verifyPassword(string pwd) bool
     }
 
     class Account {
@@ -185,6 +193,7 @@ classDiagram
         +applyInterest() void
         +getType() string
         +display() void
+        +setInterestRate(double rate) void
     }
 
     class CheckingAccount {
@@ -255,36 +264,37 @@ On Windows PowerShell, the executable may also be launched with:
 ./bank_app.exe
 ```
 
-`bank_data.txt` is loaded automatically on startup when present, and saved on every exit path. A missing data file is handled gracefully.
+The application loads `bank_data.txt` on startup when present and saves on every exit path. A missing data file is handled gracefully.
 
 ## Persistence Format
 
-`bank_data.txt` stores one pipe-delimited record per line. Spaces in names and addresses are preserved.
+`bank_data.txt` stores one pipe-delimited record per line. Customer passwords and spaces in text fields are preserved.
 
 ```text
 BANK|DEU Bank|02-123-4567|bank@example.com|123 Main Street, Seoul
-CUSTOMER|1001|Alice Smith|010-1111-2222|alice@example.com
-SAVINGS|10000001|1050|0.05|100
-CHECKING|10000002|200|300|3
+CUSTOMER|1001|Alice Smith|010-1111-2222|alice@example.com|pass123
+SAVINGS|10000001|1100|0.1|100
+CHECKING|10000002|200|300|4
+SAVINGS|10000003|100|0.1|10
 ```
 
-On load, the bank scans all saved customer IDs and account numbers and continues generation from the highest loaded value plus one, preventing collisions with saved records.
+On load, the bank restores passwords and account-specific settings and continues ID generation from the highest saved customer and account numbers.
 
 ## Verification Checklist
 
 - [x] Clean C++17 build with `-Wall -Wextra` and zero warnings
 - [x] Raw pointer ownership with `new`/`delete`; no smart pointers
 - [x] Abstract `Account` with pure virtual functions and virtual destructor
-- [x] Custom exception hierarchy derived from `std::runtime_error`
-- [x] Automatic 4-digit customer IDs and 8-digit account numbers
-- [x] ID and account-number generation continues correctly after `loadData()`
-- [x] Default checking transaction fee is applied automatically
-- [x] Manager can update the default fee and optionally an existing checking account
-- [x] Admin view-all panel lists every customer and all owned accounts
+- [x] Customer registration includes a password and displays the auto-generated ID
+- [x] Customer login works with email or phone plus password
+- [x] Passwords are saved and restored across application restarts
+- [x] Bank Manager cannot add customers or open accounts; customers self-register and self-open
+- [x] Manager updates interest rates and transaction fees for all existing accounts
+- [x] Manager can apply interest to all savings accounts
+- [x] New accounts inherit the Bank's current default rate or fee
+- [x] Admin view-all and customer search display all accounts and totals
 - [x] Customer ownership checks prevent accessing another customer's account
-- [x] Input validation and exception handling prevent crashes and input skipping
-- [x] End-to-end test verified generated IDs `1001`–`1004` and account numbers `10000001`–`10000006`
-- [x] End-to-end test verified saved balances and checking fees after restart
+- [x] End-to-end test verified password login after restart, rate `0.1`, fee `4`, and total balance `1400`
 
 ## Notes
 

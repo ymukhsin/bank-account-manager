@@ -8,11 +8,12 @@
 using namespace std;
 
 Customer::Customer(string id, string name,
-                   string phone, string mail)
+                   string phone, string mail, string pwd)
     : customerId(move(id)),
       fullName(move(name)),
       phoneNumber(move(phone)),
-      email(move(mail)) {}
+      email(move(mail)),
+      password(move(pwd)) {}
 
 Customer::~Customer() {
     for (Account* account : accounts) {
@@ -80,6 +81,14 @@ string Customer::getPhoneNumber() const {
 
 string Customer::getEmail() const {
     return email;
+}
+
+string Customer::getPassword() const {
+    return password;
+}
+
+bool Customer::verifyPassword(string pwd) const {
+    return password == pwd;
 }
 
 const vector<Account*>& Customer::getAccounts() const {

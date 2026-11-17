@@ -52,14 +52,12 @@ void printMainMenu(const string& bankName) {
 
 void printManagerMenu() {
     cout << "\n--- Bank Manager Menu ---\n"
-         << " 1) Add New Customer\n"
-         << " 2) Open Savings Account for Customer\n"
-         << " 3) Open Checking Account for Customer\n"
-         << " 4) View Customer Accounts & Total Balance\n"
-         << " 5) Apply Interest to Savings Account\n"
+         << " 1) View All Customers & Accounts\n"
+         << " 2) Search Customer Accounts & Total Balance\n"
+         << " 3) Update Savings Interest Rate (All Accounts)\n"
+         << " 4) Update Checking Transaction Fee (All Accounts)\n"
+         << " 5) Apply Interest to Savings Accounts\n"
          << " 6) Close Customer Account\n"
-         << " 7) View All Customers & Accounts\n"
-         << " 8) Update Checking Transaction Fee\n"
          << " 0) Logout to Main Menu\n"
          << "----------------------------------------\n";
 }
@@ -145,14 +143,16 @@ Customer* readAndAddCustomer(Bank& bank) {
     string name;
     string phone;
     string email;
+    string password;
 
     if (!readRequiredLine("Full name: ", name) ||
         !readRequiredLine("Phone number: ", phone) ||
-        !readRequiredLine("Email: ", email)) {
+        !readRequiredLine("Email: ", email) ||
+        !readRequiredLine("Password: ", password)) {
         return nullptr;
     }
 
-    string id = bank.addCustomer(name, phone, email);
+    string id = bank.addCustomer(name, phone, email, password);
     cout << "Assigned Customer ID: " << id << '\n';
 
     Customer* customer = bank.findCustomer(id);
@@ -171,11 +171,9 @@ void viewCustomer(Customer* customer) {
 
 bool openSavingsFor(Bank& bank, const string& customerId) {
     double initialBalance = 0.0;
-    double rate = 0.0;
     double minimum = 0.0;
 
     if (!readDouble("Initial balance: ", initialBalance) ||
-        !readDouble("Interest rate (e.g. 0.05): ", rate) ||
         !readDouble("Minimum balance: ", minimum)) {
         return false;
     }
@@ -183,15 +181,12 @@ bool openSavingsFor(Bank& bank, const string& customerId) {
     if (initialBalance < 0.0) {
         throw InvalidAmountException("Initial balance cannot be negative.");
     }
-    if (rate < 0.0) {
-        throw InvalidAmountException("Interest rate cannot be negative.");
-    }
     if (minimum < 0.0) {
         throw InvalidAmountException("Minimum balance cannot be negative.");
     }
 
     string accountNumber = bank.openSavingsAccount(
-        customerId, initialBalance, rate, minimum);
+        customerId, initialBalance, minimum);
     cout << "Savings account opened. Account Number: "
          << accountNumber << '\n';
     return true;
@@ -220,7 +215,7 @@ bool openCheckingFor(Bank& bank, const string& customerId) {
     return true;
 }
 
-void runManagerMenu(Bank& bank, double& defaultTransactionFee) {
+void runManagerMenu(Bank& bank, const vector<Customer*>& customers) {
     while (true) {
         printManagerMenu();
 
@@ -235,35 +230,10 @@ void runManagerMenu(Bank& bank, double& defaultTransactionFee) {
 
         try {
             switch (choice) {
-                case 1: {
-                    Customer* customer = readAndAddCustomer(bank);
-                    if (customer == nullptr) {
-                        return;
-                    }
-                    cout << "Customer added.\n";
+                case 1:
+                    bank.viewAllCustomers();
                     break;
-                }
                 case 2: {
-                    string customerId;
-                    if (!readRequiredLine("Customer ID: ", customerId)) {
-                        return;
-                    }
-                    if (!openSavingsFor(bank, customerId)) {
-                        return;
-                    }
-                    break;
-                }
-                case 3: {
-                    string customerId;
-                    if (!readRequiredLine("Customer ID: ", customerId)) {
-                        return;
-                    }
-                    if (!openCheckingFor(bank, customerId)) {
-                        return;
-                    }
-                    break;
-                }
-                case 4: {
                     string customerId;
                     if (!readRequiredLine("Customer ID: ", customerId)) {
                         return;
@@ -275,23 +245,41 @@ void runManagerMenu(Bank& bank, double& defaultTransactionFee) {
                     viewCustomer(customer);
                     break;
                 }
-                case 5: {
-                    string accountNumber;
-                    if (!readRequiredLine("Savings account number: ",
-                                          accountNumber)) {
+                case 3: {
+                    double rate = 0.0;
+                    if (!readDouble("New savings interest rate (e.g. 0.06): ",
+                                    rate)) {
                         return;
                     }
-
-                    Account* account = bank.findAccount(accountNumber);
-                    SavingsAccount* savings =
-                        dynamic_cast<SavingsAccount*>(account);
-                    if (savings == nullptr) {
-                        throw BankingException(
-                            "Selected account is not a savings account.");
+                    bank.updateAllInterestRates(rate);
+                    cout << "All savings accounts updated to interest rate "
+                         << rate << ".\n";
+                    break;
+                }
+                case 4: {
+                    double fee = 0.0;
+                    if (!readDouble("New checking transaction fee: ", fee)) {
+                        return;
                     }
-
-                    savings->applyInterest();
-                    cout << "Interest applied.\n";
+                    bank.updateAllTransactionFees(fee);
+                    cout << "All checking accounts updated to transaction fee "
+                         << fee << ".\n";
+                    break;
+                }
+                case 5: {
+                    int applied = 0;
+                    for (Customer* customer : customers) {
+                        for (Account* account : customer->getAccounts()) {
+                            SavingsAccount* savings =
+                                dynamic_cast<SavingsAccount*>(account);
+                            if (savings != nullptr) {
+                                savings->applyInterest();
+                                ++applied;
+                            }
+                        }
+                    }
+                    cout << "Interest applied to " << applied
+                         << " savings account(s).\n";
                     break;
                 }
                 case 6: {
@@ -303,54 +291,8 @@ void runManagerMenu(Bank& bank, double& defaultTransactionFee) {
                     cout << "Account closed.\n";
                     break;
                 }
-                case 7:
-                    bank.viewAllCustomers();
-                    break;
-                case 8: {
-                    double fee = 0.0;
-                    if (!readDouble("New default transaction fee: ", fee)) {
-                        return;
-                    }
-                    if (fee < 0.0) {
-                        throw InvalidAmountException(
-                            "Transaction fee cannot be negative.");
-                    }
-
-                    defaultTransactionFee = fee;
-                    cout << "Default transaction fee updated to "
-                         << defaultTransactionFee << ".\n";
-
-                    string answer;
-                    if (!readRequiredLine(
-                            "Update an existing checking account? (y/n): ",
-                            answer)) {
-                        return;
-                    }
-
-                    if (answer == "y" || answer == "Y") {
-                        string accountNumber;
-                        if (!readRequiredLine(
-                                "Checking account number: ", accountNumber)) {
-                            return;
-                        }
-
-                        Account* account = bank.findAccount(accountNumber);
-                        CheckingAccount* checking =
-                            dynamic_cast<CheckingAccount*>(account);
-                        if (checking == nullptr) {
-                            throw BankingException(
-                                "Selected account is not a checking account.");
-                        }
-
-                        checking->setTransactionFee(fee);
-                        cout << "Existing checking account fee updated.\n";
-                    } else {
-                        cout << "Only future checking accounts will use the new fee.\n";
-                    }
-                    break;
-                }
                 default:
-                    cout << "Invalid menu option. Choose 0-8.\n";
+                    cout << "Invalid menu option. Choose 0-6.\n";
                     break;
             }
         } catch (const BankingException& e) {
@@ -463,24 +405,16 @@ void runCustomerPortal(Bank& bank) {
             }
 
             if (choice == 2) {
-                string customerId;
                 string emailOrPhone;
-                if (!readRequiredLine("Customer ID: ", customerId) ||
-                    !readRequiredLine("Email or phone number: ",
-                                      emailOrPhone)) {
+                string password;
+                if (!readRequiredLine("Email or phone number: ",
+                                      emailOrPhone) ||
+                    !readRequiredLine("Password: ", password)) {
                     return;
                 }
 
-                Customer* customer = bank.findCustomer(customerId);
-                if (customer == nullptr) {
-                    throw BankingException("Customer not found.");
-                }
-                if (customer->getEmail() != emailOrPhone &&
-                    customer->getPhoneNumber() != emailOrPhone) {
-                    throw BankingException(
-                        "Email or phone number does not match.");
-                }
-
+                Customer* customer =
+                    bank.loginCustomer(emailOrPhone, password);
                 runCustomerDashboard(bank, customer);
                 return;
             }
@@ -517,14 +451,16 @@ string Bank::generateAccountNumber() {
     return to_string(nextAccountNumber++);
 }
 
-string Bank::addCustomer(string name, string phone, string email) {
+string Bank::addCustomer(string name, string phone,
+                         string email, string password) {
     string id = generateCustomerId();
     if (findCustomer(id) != nullptr) {
         throw BankingException("Generated customer ID collision.");
     }
 
     customers.push_back(
-        new Customer(id, move(name), move(phone), move(email)));
+        new Customer(id, move(name), move(phone), move(email),
+                     move(password)));
     return id;
 }
 
@@ -535,6 +471,20 @@ Customer* Bank::findCustomer(string customerId) {
         }
     }
     return nullptr;
+}
+
+Customer* Bank::loginCustomer(string emailOrPhone, string password) {
+    for (Customer* customer : customers) {
+        bool matchesContact =
+            customer->getEmail() == emailOrPhone ||
+            customer->getPhoneNumber() == emailOrPhone;
+
+        if (matchesContact && customer->verifyPassword(password)) {
+            return customer;
+        }
+    }
+
+    throw BankingException("Invalid customer credentials.");
 }
 
 void Bank::openAccount(string customerId, Account* account) {
@@ -556,14 +506,14 @@ void Bank::openAccount(string customerId, Account* account) {
 }
 
 string Bank::openSavingsAccount(string customerId, double initialBalance,
-                                double rate, double minimum) {
+                                double minimum) {
     if (findCustomer(customerId) == nullptr) {
         throw BankingException("Customer not found.");
     }
 
     string accountNumber = generateAccountNumber();
     Account* account = new SavingsAccount(
-        accountNumber, initialBalance, rate, minimum);
+        accountNumber, initialBalance, defaultInterestRate, minimum);
     try {
         openAccount(customerId, account);
     } catch (...) {
@@ -637,6 +587,38 @@ void Bank::viewAllCustomers() {
     }
 }
 
+void Bank::updateAllInterestRates(double newRate) {
+    if (newRate < 0.0) {
+        throw InvalidAmountException("Interest rate cannot be negative.");
+    }
+
+    defaultInterestRate = newRate;
+    for (Customer* customer : customers) {
+        for (Account* account : customer->getAccounts()) {
+            SavingsAccount* savings = dynamic_cast<SavingsAccount*>(account);
+            if (savings != nullptr) {
+                savings->setInterestRate(newRate);
+            }
+        }
+    }
+}
+
+void Bank::updateAllTransactionFees(double newFee) {
+    if (newFee < 0.0) {
+        throw InvalidAmountException("Transaction fee cannot be negative.");
+    }
+
+    defaultTransactionFee = newFee;
+    for (Customer* customer : customers) {
+        for (Account* account : customer->getAccounts()) {
+            CheckingAccount* checking = dynamic_cast<CheckingAccount*>(account);
+            if (checking != nullptr) {
+                checking->setTransactionFee(newFee);
+            }
+        }
+    }
+}
+
 void Bank::saveData(string filePath) {
     ofstream out(filePath);
     if (!out) {
@@ -651,7 +633,8 @@ void Bank::saveData(string filePath) {
         out << "CUSTOMER|" << customer->getCustomerId() << '|'
             << customer->getFullName() << '|'
             << customer->getPhoneNumber() << '|'
-            << customer->getEmail() << '\n';
+            << customer->getEmail() << '|'
+            << customer->getPassword() << '\n';
 
         for (Account* account : customer->getAccounts()) {
             SavingsAccount* savings = dynamic_cast<SavingsAccount*>(account);
@@ -720,12 +703,12 @@ void Bank::loadData(string filePath) {
         }
 
         if (fields[0] == "CUSTOMER") {
-            if (fields.size() != 5) {
+            if (fields.size() != 6) {
                 throw BankingException("Invalid customer record.");
             }
 
-            Customer* customer =
-                new Customer(fields[1], fields[2], fields[3], fields[4]);
+            Customer* customer = new Customer(
+                fields[1], fields[2], fields[3], fields[4], fields[5]);
             if (findCustomer(fields[1]) != nullptr) {
                 delete customer;
                 throw BankingException("Duplicate customer ID in data file.");
@@ -822,7 +805,7 @@ void Bank::run() {
                     continue;
                 }
 
-                runManagerMenu(*this, defaultTransactionFee);
+                runManagerMenu(*this, customers);
             } else if (choice == 2) {
                 runCustomerPortal(*this);
             } else {

@@ -17,6 +17,7 @@ private:
     string address;
     int nextCustomerId = 1001;
     long nextAccountNumber = 10000001;
+    double defaultInterestRate = 0.05;
     double defaultTransactionFee = 2.0;
     vector<Customer*> customers;
 
@@ -31,11 +32,13 @@ public:
     Bank(const Bank&) = delete;
     Bank& operator=(const Bank&) = delete;
 
-    string addCustomer(string name, string phone, string email);
+    string addCustomer(string name, string phone,
+                       string email, string password);
     Customer* findCustomer(string customerId);
+    Customer* loginCustomer(string emailOrPhone, string password);
 
     string openSavingsAccount(string customerId, double initialBalance,
-                              double rate, double minimum);
+                              double minimum);
     string openCheckingAccount(string customerId, double initialBalance,
                                double limit);
 
@@ -47,6 +50,8 @@ public:
     void withdraw(string accountNumber, double amount);
 
     void viewAllCustomers();
+    void updateAllInterestRates(double newRate);
+    void updateAllTransactionFees(double newFee);
 
     void saveData(string filePath);
     void loadData(string filePath);

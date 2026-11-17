@@ -14,11 +14,12 @@ private:
     string fullName;
     string phoneNumber;
     string email;
+    string password;
     vector<Account*> accounts;
 
 public:
-    Customer(string id, string name,
-             string phone, string mail);
+    Customer(string id, string name, string phone,
+             string mail, string pwd);
     ~Customer();
 
     Customer(const Customer&) = delete;
@@ -34,6 +35,8 @@ public:
     string getFullName() const;
     string getPhoneNumber() const;
     string getEmail() const;
+    string getPassword() const;
+    bool verifyPassword(string pwd) const;
     const vector<Account*>& getAccounts() const;
 };
 
