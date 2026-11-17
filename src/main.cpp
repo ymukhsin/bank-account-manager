@@ -6,7 +6,7 @@
 using namespace std;
 
 int main() {
-    Bank bank("DEU Bank", "02-123-4567",
+    Bank bank("deu", "02-123-4567",
               "bank@example.com", "123 Main Street, Seoul");
 
     try {

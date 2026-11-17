@@ -770,7 +770,7 @@ void Bank::loadData(string filePath) {
 }
 
 void Bank::run() {
-    const string MANAGER_PASS = "admin123";
+    const string MANAGER_PASS = "admin";
 
     while (true) {
         printMainMenu(bankName);
