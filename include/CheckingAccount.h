@@ -23,6 +23,7 @@ public:
 
     double getOverdraftLimit() const;
     double getTransactionFee() const;
+    void setTransactionFee(double fee);
 };
 
 #endif // BANK_ACCOUNT_MANAGER_CHECKING_ACCOUNT_H

@@ -15,7 +15,13 @@ private:
     string phoneNumber;
     string email;
     string address;
+    int nextCustomerId = 1001;
+    long nextAccountNumber = 10000001;
+    double defaultTransactionFee = 2.0;
     vector<Customer*> customers;
+
+    string generateCustomerId();
+    string generateAccountNumber();
 
 public:
     Bank(string name, string phone,
@@ -25,9 +31,13 @@ public:
     Bank(const Bank&) = delete;
     Bank& operator=(const Bank&) = delete;
 
-    void addCustomer(string id, string name,
-                     string phone, string email);
+    string addCustomer(string name, string phone, string email);
     Customer* findCustomer(string customerId);
+
+    string openSavingsAccount(string customerId, double initialBalance,
+                              double rate, double minimum);
+    string openCheckingAccount(string customerId, double initialBalance,
+                               double limit);
 
     void openAccount(string customerId, Account* account);
     void closeAccount(string accountNumber);
@@ -35,6 +45,8 @@ public:
 
     void deposit(string accountNumber, double amount);
     void withdraw(string accountNumber, double amount);
+
+    void viewAllCustomers();
 
     void saveData(string filePath);
     void loadData(string filePath);

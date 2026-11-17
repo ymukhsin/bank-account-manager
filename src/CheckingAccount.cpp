@@ -40,3 +40,10 @@ double CheckingAccount::getOverdraftLimit() const {
 double CheckingAccount::getTransactionFee() const {
     return transactionFee;
 }
+
+void CheckingAccount::setTransactionFee(double fee) {
+    if (fee < 0.0) {
+        throw InvalidAmountException("Transaction fee cannot be negative.");
+    }
+    transactionFee = fee;
+}
