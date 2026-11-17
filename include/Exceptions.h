@@ -1,48 +1,33 @@
 #ifndef BANK_ACCOUNT_MANAGER_EXCEPTIONS_H
 #define BANK_ACCOUNT_MANAGER_EXCEPTIONS_H
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 /**
  * BankingException
  * ----------------
- * Base class for every domain-specific error thrown by the bank.
+ * Base class for all domain errors raised by the bank.
  */
-class BankingException : public std::exception {
-private:
-    std::string message;
-
+class BankingException : public std::runtime_error {
 public:
-    explicit BankingException(const std::string& msg) : message(msg) {}
-
-    const char* what() const noexcept override {
-        return message.c_str();
-    }
+    explicit BankingException(const std::string& message)
+        : std::runtime_error(message) {}
 };
 
 class InvalidAmountException : public BankingException {
 public:
-    InvalidAmountException()
-        : BankingException("Error: Invalid amount. Amount must be greater than zero.") {}
+    InvalidAmountException() : BankingException("Invalid amount.") {}
 };
 
 class InsufficientFundsException : public BankingException {
 public:
-    InsufficientFundsException()
-        : BankingException("Error: Insufficient funds for withdrawal!") {}
+    InsufficientFundsException() : BankingException("Insufficient funds.") {}
 };
 
 class AccountNotFoundException : public BankingException {
 public:
-    AccountNotFoundException()
-        : BankingException("Error: Account not found.") {}
-};
-
-class AuthenticationException : public BankingException {
-public:
-    AuthenticationException()
-        : BankingException("Error: Authentication failed.") {}
+    AccountNotFoundException() : BankingException("Account not found.") {}
 };
 
 #endif // BANK_ACCOUNT_MANAGER_EXCEPTIONS_H

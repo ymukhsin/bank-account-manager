@@ -1,68 +1,40 @@
 #ifndef BANK_ACCOUNT_MANAGER_BANK_H
 #define BANK_ACCOUNT_MANAGER_BANK_H
 
-#include <iostream>
-#include <memory>
+#include "Account.h"
+#include "Customer.h"
+
 #include <string>
 #include <vector>
 
-#include "Account.h"
-#include "CheckingAccount.h"
-#include "SavingsAccount.h"
-
-/**
- * Bank
- * ----
- * Owns a collection of accounts through Account pointers so that calls
- * such as displayInfo() are resolved polymorphically at runtime.
- */
 class Bank {
 private:
-    std::vector<Account*> accounts;
+    std::string bankName;
+    std::string phoneNumber;
+    std::string email;
+    std::string address;
+    std::vector<Customer*> customers;
 
 public:
-    Bank() = default;
+    Bank(std::string name, std::string phone,
+         std::string mail, std::string location);
+    ~Bank();
 
-    // Bank owns its accounts. Copying would duplicate the raw pointers
-    // and cause double deletion, so copying is disabled.
     Bank(const Bank&) = delete;
     Bank& operator=(const Bank&) = delete;
 
-    // Free every account that was transferred to the bank.
-    ~Bank() {
-        for (Account* account : accounts) {
-            delete account;
-        }
-    }
+    void addCustomer(Customer* customer);
+    Customer* findCustomer(std::string customerId);
 
-    // The bank takes ownership of acc and deletes it in ~Bank().
-    void addAccount(Account* acc) {
-        if (acc != nullptr) {
-            accounts.push_back(acc);
-        }
-    }
+    void openAccount(std::string customerId, Account* account);
+    void closeAccount(std::string accountNumber);
+    Account* findAccount(std::string accountNumber);
 
-    // Virtual dispatch selects the correct displayInfo() for each type.
-    void showAllAccounts() const {
-        if (accounts.empty()) {
-            std::cout << " No accounts registered.\n";
-            return;
-        }
+    void deposit(std::string accountNumber, double amount);
+    void withdraw(std::string accountNumber, double amount);
 
-        for (Account* account : accounts) {
-            account->displayInfo();
-        }
-    }
-
-    // Return the first account held by ownerName, or nullptr if absent.
-    Account* findAccount(const std::string& ownerName) {
-        for (Account* account : accounts) {
-            if (account->getHolderName() == ownerName) {
-                return account;
-            }
-        }
-        return nullptr;
-    }
+    void saveData(std::string filePath);
+    void loadData(std::string filePath);
 };
 
 #endif // BANK_ACCOUNT_MANAGER_BANK_H
