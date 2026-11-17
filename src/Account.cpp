@@ -2,8 +2,10 @@
 
 #include <utility>
 
-Account::Account(std::string number, double initialBalance)
-    : accountNumber(std::move(number)), balance(initialBalance) {}
+using namespace std;
+
+Account::Account(string number, double initialBalance)
+    : accountNumber(move(number)), balance(initialBalance) {}
 
 void Account::deposit(double amount) {
     if (amount <= 0.0) {
@@ -16,6 +18,6 @@ double Account::getBalance() const {
     return balance;
 }
 
-std::string Account::getAccountNumber() const {
+string Account::getAccountNumber() const {
     return accountNumber;
 }

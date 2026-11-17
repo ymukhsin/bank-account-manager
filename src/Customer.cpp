@@ -5,12 +5,14 @@
 #include <iostream>
 #include <utility>
 
-Customer::Customer(std::string id, std::string name,
-                   std::string phone, std::string mail)
-    : customerId(std::move(id)),
-      fullName(std::move(name)),
-      phoneNumber(std::move(phone)),
-      email(std::move(mail)) {}
+using namespace std;
+
+Customer::Customer(string id, string name,
+                   string phone, string mail)
+    : customerId(move(id)),
+      fullName(move(name)),
+      phoneNumber(move(phone)),
+      email(move(mail)) {}
 
 Customer::~Customer() {
     for (Account* account : accounts) {
@@ -24,8 +26,8 @@ void Customer::addAccount(Account* account) {
     }
 }
 
-void Customer::removeAccount(std::string accountNumber) {
-    for (std::vector<Account*>::iterator it = accounts.begin();
+void Customer::removeAccount(string accountNumber) {
+    for (vector<Account*>::iterator it = accounts.begin();
          it != accounts.end(); ++it) {
         if ((*it)->getAccountNumber() == accountNumber) {
             delete *it;
@@ -36,7 +38,7 @@ void Customer::removeAccount(std::string accountNumber) {
     throw AccountNotFoundException();
 }
 
-Account* Customer::findAccount(std::string accountNumber) {
+Account* Customer::findAccount(string accountNumber) {
     for (Account* account : accounts) {
         if (account->getAccountNumber() == accountNumber) {
             return account;
@@ -47,7 +49,7 @@ Account* Customer::findAccount(std::string accountNumber) {
 
 void Customer::listAccounts() const {
     if (accounts.empty()) {
-        std::cout << "No accounts found.\n";
+        cout << "No accounts found.\n";
         return;
     }
 
@@ -64,22 +66,22 @@ double Customer::getTotalBalance() const {
     return total;
 }
 
-std::string Customer::getCustomerId() const {
+string Customer::getCustomerId() const {
     return customerId;
 }
 
-std::string Customer::getFullName() const {
+string Customer::getFullName() const {
     return fullName;
 }
 
-std::string Customer::getPhoneNumber() const {
+string Customer::getPhoneNumber() const {
     return phoneNumber;
 }
 
-std::string Customer::getEmail() const {
+string Customer::getEmail() const {
     return email;
 }
 
-const std::vector<Account*>& Customer::getAccounts() const {
+const vector<Account*>& Customer::getAccounts() const {
     return accounts;
 }

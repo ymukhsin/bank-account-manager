@@ -7,35 +7,37 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class Bank {
 private:
-    std::string bankName;
-    std::string phoneNumber;
-    std::string email;
-    std::string address;
-    std::vector<Customer*> customers;
+    string bankName;
+    string phoneNumber;
+    string email;
+    string address;
+    vector<Customer*> customers;
 
 public:
-    Bank(std::string name, std::string phone,
-         std::string mail, std::string location);
+    Bank(string name, string phone,
+         string mail, string location);
     ~Bank();
 
     Bank(const Bank&) = delete;
     Bank& operator=(const Bank&) = delete;
 
-    void addCustomer(std::string id, std::string name,
-                     std::string phone, std::string email);
-    Customer* findCustomer(std::string customerId);
+    void addCustomer(string id, string name,
+                     string phone, string email);
+    Customer* findCustomer(string customerId);
 
-    void openAccount(std::string customerId, Account* account);
-    void closeAccount(std::string accountNumber);
-    Account* findAccount(std::string accountNumber);
+    void openAccount(string customerId, Account* account);
+    void closeAccount(string accountNumber);
+    Account* findAccount(string accountNumber);
 
-    void deposit(std::string accountNumber, double amount);
-    void withdraw(std::string accountNumber, double amount);
+    void deposit(string accountNumber, double amount);
+    void withdraw(string accountNumber, double amount);
 
-    void saveData(std::string filePath);
-    void loadData(std::string filePath);
+    void saveData(string filePath);
+    void loadData(string filePath);
 
     void run();
 };

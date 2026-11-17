@@ -5,19 +5,21 @@
 
 #include <string>
 
+using namespace std;
+
 class SavingsAccount : public Account {
 private:
     double interestRate;
     double minimumBalance;
 
 public:
-    SavingsAccount(std::string number, double initialBalance,
+    SavingsAccount(string number, double initialBalance,
                    double rate, double minimum);
 
     void withdraw(double amount) override;
     void applyInterest();
 
-    std::string getType() override;
+    string getType() override;
     void display() override;
 
     double getInterestRate() const;

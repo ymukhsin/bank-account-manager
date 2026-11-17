@@ -3,9 +3,11 @@
 #include <iostream>
 #include <utility>
 
-SavingsAccount::SavingsAccount(std::string number, double initialBalance,
+using namespace std;
+
+SavingsAccount::SavingsAccount(string number, double initialBalance,
                                double rate, double minimum)
-    : Account(std::move(number), initialBalance),
+    : Account(move(number), initialBalance),
       interestRate(rate),
       minimumBalance(minimum) {}
 
@@ -23,12 +25,12 @@ void SavingsAccount::applyInterest() {
     balance += balance * interestRate;
 }
 
-std::string SavingsAccount::getType() {
+string SavingsAccount::getType() {
     return "Savings";
 }
 
 void SavingsAccount::display() {
-    std::cout << "\nSavings Account\n"
+    cout << "\nSavings Account\n"
               << "Account Number: " << getAccountNumber() << '\n'
               << "Balance: " << balance << '\n'
               << "Interest Rate: " << interestRate << '\n'

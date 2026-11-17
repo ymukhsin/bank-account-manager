@@ -10,15 +10,17 @@
 #include <utility>
 #include <vector>
 
+using namespace std;
+
 namespace {
 
-std::vector<std::string> splitLine(const std::string& line, char delimiter) {
-    std::vector<std::string> fields;
-    std::string::size_type start = 0;
+vector<string> splitLine(const string& line, char delimiter) {
+    vector<string> fields;
+    string::size_type start = 0;
 
     while (true) {
-        std::string::size_type position = line.find(delimiter, start);
-        if (position == std::string::npos) {
+        string::size_type position = line.find(delimiter, start);
+        if (position == string::npos) {
             fields.push_back(line.substr(start));
             break;
         }
@@ -30,77 +32,77 @@ std::vector<std::string> splitLine(const std::string& line, char delimiter) {
     return fields;
 }
 
-double parseAmount(const std::string& value) {
+double parseAmount(const string& value) {
     try {
-        return std::stod(value);
-    } catch (const std::exception&) {
+        return stod(value);
+    } catch (const exception&) {
         throw BankingException("Invalid numeric value in data file.");
     }
 }
 
 void printMenu() {
-    std::cout << "\n========================================\n"
-              << "           BANK ACCOUNT MANAGER\n"
-              << "========================================\n"
-              << " 1) Add Customer\n"
-              << " 2) Open Savings Account\n"
-              << " 3) Open Checking Account\n"
-              << " 4) Deposit\n"
-              << " 5) Withdraw\n"
-              << " 6) View Customer Accounts & Total Balance\n"
-              << " 7) Apply Interest (Savings)\n"
-              << " 8) Close Account\n"
-              << " 0) Save & Exit\n"
-              << "----------------------------------------\n";
+    cout << "\n========================================\n"
+         << "           BANK ACCOUNT MANAGER\n"
+         << "========================================\n"
+         << " 1) Add Customer\n"
+         << " 2) Open Savings Account\n"
+         << " 3) Open Checking Account\n"
+         << " 4) Deposit\n"
+         << " 5) Withdraw\n"
+         << " 6) View Customer Accounts & Total Balance\n"
+         << " 7) Apply Interest (Savings)\n"
+         << " 8) Close Account\n"
+         << " 0) Save & Exit\n"
+         << "----------------------------------------\n";
 }
 
-bool readInt(const std::string& prompt, int& value) {
+bool readInt(const string& prompt, int& value) {
     while (true) {
-        std::cout << prompt;
-        std::cin >> value;
+        cout << prompt;
+        cin >> value;
 
-        if (!std::cin.fail()) {
-            std::cin.ignore(10000, '\n');
+        if (!cin.fail()) {
+            cin.ignore(10000, '\n');
             return true;
         }
-        if (std::cin.eof()) {
+        if (cin.eof()) {
             return false;
         }
 
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        std::cout << "Invalid input. Please enter a whole number.\n";
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Invalid input. Please enter a whole number.\n";
     }
 }
 
-bool readDouble(const std::string& prompt, double& value) {
+bool readDouble(const string& prompt, double& value) {
     while (true) {
-        std::cout << prompt;
-        std::cin >> value;
+        cout << prompt;
+        cin >> value;
 
-        if (!std::cin.fail()) {
-            std::cin.ignore(10000, '\n');
+        if (!cin.fail()) {
+            cin.ignore(10000, '\n');
             return true;
         }
-        if (std::cin.eof()) {
+        if (cin.eof()) {
             return false;
         }
 
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        std::cout << "Invalid input. Please enter a number.\n";
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Invalid input. Please enter a number.\n";
     }
 }
 
-bool readLine(const std::string& prompt, std::string& value) {
-    std::cout << prompt;
-    if (!std::getline(std::cin, value)) {
+bool readLine(const string& prompt, string& value) {
+    cout << prompt;
+    if (!getline(cin, value)) {
         return false;
     }
     return true;
 }
 
-bool readRequiredLine(const std::string& prompt, std::string& value) {
+bool readRequiredLine(const string& prompt, string& value) {
     while (true) {
         if (!readLine(prompt, value)) {
             return false;
@@ -108,18 +110,18 @@ bool readRequiredLine(const std::string& prompt, std::string& value) {
         if (!value.empty()) {
             return true;
         }
-        std::cout << "Input cannot be empty. Please try again.\n";
+        cout << "Input cannot be empty. Please try again.\n";
     }
 }
 
 }  // namespace
 
-Bank::Bank(std::string name, std::string phone,
-           std::string mail, std::string location)
-    : bankName(std::move(name)),
-      phoneNumber(std::move(phone)),
-      email(std::move(mail)),
-      address(std::move(location)) {}
+Bank::Bank(string name, string phone,
+           string mail, string location)
+    : bankName(move(name)),
+      phoneNumber(move(phone)),
+      email(move(mail)),
+      address(move(location)) {}
 
 Bank::~Bank() {
     for (Customer* customer : customers) {
@@ -127,17 +129,17 @@ Bank::~Bank() {
     }
 }
 
-void Bank::addCustomer(std::string id, std::string name,
-                       std::string phone, std::string email) {
+void Bank::addCustomer(string id, string name,
+                       string phone, string email) {
     if (findCustomer(id) != nullptr) {
         throw BankingException("Duplicate customer ID.");
     }
     customers.push_back(
-        new Customer(std::move(id), std::move(name),
-                     std::move(phone), std::move(email)));
+        new Customer(move(id), move(name),
+                     move(phone), move(email)));
 }
 
-Customer* Bank::findCustomer(std::string customerId) {
+Customer* Bank::findCustomer(string customerId) {
     for (Customer* customer : customers) {
         if (customer->getCustomerId() == customerId) {
             return customer;
@@ -146,7 +148,7 @@ Customer* Bank::findCustomer(std::string customerId) {
     return nullptr;
 }
 
-void Bank::openAccount(std::string customerId, Account* account) {
+void Bank::openAccount(string customerId, Account* account) {
     Customer* customer = findCustomer(customerId);
     if (customer == nullptr) {
         throw BankingException("Customer not found.");
@@ -164,7 +166,7 @@ void Bank::openAccount(std::string customerId, Account* account) {
     customer->addAccount(account);
 }
 
-void Bank::closeAccount(std::string accountNumber) {
+void Bank::closeAccount(string accountNumber) {
     for (Customer* customer : customers) {
         if (customer->findAccount(accountNumber) != nullptr) {
             customer->removeAccount(accountNumber);
@@ -174,7 +176,7 @@ void Bank::closeAccount(std::string accountNumber) {
     throw AccountNotFoundException();
 }
 
-Account* Bank::findAccount(std::string accountNumber) {
+Account* Bank::findAccount(string accountNumber) {
     for (Customer* customer : customers) {
         Account* account = customer->findAccount(accountNumber);
         if (account != nullptr) {
@@ -184,16 +186,16 @@ Account* Bank::findAccount(std::string accountNumber) {
     throw AccountNotFoundException();
 }
 
-void Bank::deposit(std::string accountNumber, double amount) {
+void Bank::deposit(string accountNumber, double amount) {
     findAccount(accountNumber)->deposit(amount);
 }
 
-void Bank::withdraw(std::string accountNumber, double amount) {
+void Bank::withdraw(string accountNumber, double amount) {
     findAccount(accountNumber)->withdraw(amount);
 }
 
-void Bank::saveData(std::string filePath) {
-    std::ofstream out(filePath);
+void Bank::saveData(string filePath) {
+    ofstream out(filePath);
     if (!out) {
         throw BankingException("Unable to open data file for writing.");
     }
@@ -233,18 +235,18 @@ void Bank::saveData(std::string filePath) {
     }
 }
 
-void Bank::loadData(std::string filePath) {
-    std::ifstream in(filePath);
+void Bank::loadData(string filePath) {
+    ifstream in(filePath);
     if (!in.is_open()) {
         return;
     }
 
-    std::string line;
-    if (!std::getline(in, line)) {
+    string line;
+    if (!getline(in, line)) {
         throw BankingException("Data file is empty.");
     }
 
-    std::vector<std::string> header = splitLine(line, '|');
+    vector<string> header = splitLine(line, '|');
     if (header.size() != 5 || header[0] != "BANK") {
         throw BankingException("Invalid bank record.");
     }
@@ -261,12 +263,12 @@ void Bank::loadData(std::string filePath) {
 
     Customer* currentCustomer = nullptr;
 
-    while (std::getline(in, line)) {
+    while (getline(in, line)) {
         if (line.empty()) {
             continue;
         }
 
-        std::vector<std::string> fields = splitLine(line, '|');
+        vector<string> fields = splitLine(line, '|');
         if (fields.size() < 2) {
             throw BankingException("Invalid data record.");
         }
@@ -317,17 +319,17 @@ void Bank::run() {
     while (choice != 0) {
         printMenu();
         if (!readInt("Select an option: ", choice)) {
-            std::cout << "\nInput closed.\n";
+            cout << "\nInput closed.\n";
             return;
         }
 
         try {
             switch (choice) {
                 case 1: {
-                    std::string id;
-                    std::string name;
-                    std::string phone;
-                    std::string email;
+                    string id;
+                    string name;
+                    string phone;
+                    string email;
 
                     if (!readRequiredLine("Customer ID: ", id) ||
                         !readRequiredLine("Full name: ", name) ||
@@ -337,12 +339,12 @@ void Bank::run() {
                     }
 
                     addCustomer(id, name, phone, email);
-                    std::cout << "Customer added.\n";
+                    cout << "Customer added.\n";
                     break;
                 }
                 case 2: {
-                    std::string customerId;
-                    std::string accountNumber;
+                    string customerId;
+                    string accountNumber;
                     double initialBalance = 0.0;
                     double rate = 0.0;
                     double minimum = 0.0;
@@ -377,12 +379,12 @@ void Bank::run() {
                         throw;
                     }
 
-                    std::cout << "Savings account opened.\n";
+                    cout << "Savings account opened.\n";
                     break;
                 }
                 case 3: {
-                    std::string customerId;
-                    std::string accountNumber;
+                    string customerId;
+                    string accountNumber;
                     double initialBalance = 0.0;
                     double limit = 0.0;
                     double fee = 0.0;
@@ -417,11 +419,11 @@ void Bank::run() {
                         throw;
                     }
 
-                    std::cout << "Checking account opened.\n";
+                    cout << "Checking account opened.\n";
                     break;
                 }
                 case 4: {
-                    std::string accountNumber;
+                    string accountNumber;
                     double amount = 0.0;
                     if (!readRequiredLine("Account number: ", accountNumber) ||
                         !readDouble("Deposit amount: ", amount)) {
@@ -429,11 +431,11 @@ void Bank::run() {
                     }
 
                     deposit(accountNumber, amount);
-                    std::cout << "Deposit successful.\n";
+                    cout << "Deposit successful.\n";
                     break;
                 }
                 case 5: {
-                    std::string accountNumber;
+                    string accountNumber;
                     double amount = 0.0;
                     if (!readRequiredLine("Account number: ", accountNumber) ||
                         !readDouble("Withdrawal amount: ", amount)) {
@@ -441,11 +443,11 @@ void Bank::run() {
                     }
 
                     withdraw(accountNumber, amount);
-                    std::cout << "Withdrawal successful.\n";
+                    cout << "Withdrawal successful.\n";
                     break;
                 }
                 case 6: {
-                    std::string customerId;
+                    string customerId;
                     if (!readRequiredLine("Customer ID: ", customerId)) {
                         return;
                     }
@@ -455,15 +457,15 @@ void Bank::run() {
                         throw BankingException("Customer not found.");
                     }
 
-                    std::cout << "\nCustomer: " << customer->getFullName()
+                    cout << "\nCustomer: " << customer->getFullName()
                               << " (" << customer->getCustomerId() << ")\n";
                     customer->listAccounts();
-                    std::cout << "Total balance: "
+                    cout << "Total balance: "
                               << customer->getTotalBalance() << '\n';
                     break;
                 }
                 case 7: {
-                    std::string accountNumber;
+                    string accountNumber;
                     if (!readRequiredLine("Savings account number: ",
                                           accountNumber)) {
                         return;
@@ -478,30 +480,30 @@ void Bank::run() {
                     }
 
                     savings->applyInterest();
-                    std::cout << "Interest applied.\n";
+                    cout << "Interest applied.\n";
                     break;
                 }
                 case 8: {
-                    std::string accountNumber;
+                    string accountNumber;
                     if (!readRequiredLine("Account number: ", accountNumber)) {
                         return;
                     }
 
                     closeAccount(accountNumber);
-                    std::cout << "Account closed.\n";
+                    cout << "Account closed.\n";
                     break;
                 }
                 case 0:
-                    std::cout << "Saving and exiting...\n";
+                    cout << "Saving and exiting...\n";
                     return;
                 default:
-                    std::cout << "Invalid menu option. Choose 0-8.\n";
+                    cout << "Invalid menu option. Choose 0-8.\n";
                     break;
             }
         } catch (const BankingException& e) {
-            std::cout << "Error: " << e.what() << '\n';
-        } catch (const std::exception& e) {
-            std::cout << "Unexpected error: " << e.what() << '\n';
+            cout << "Error: " << e.what() << '\n';
+        } catch (const exception& e) {
+            cout << "Unexpected error: " << e.what() << '\n';
         }
     }
 }

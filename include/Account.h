@@ -5,6 +5,8 @@
 
 #include <string>
 
+using namespace std;
+
 /**
  * Account
  * -------
@@ -12,22 +14,22 @@
  */
 class Account {
 private:
-    std::string accountNumber;
+    string accountNumber;
 
 protected:
     double balance;
 
 public:
-    Account(std::string number, double initialBalance);
+    Account(string number, double initialBalance);
     virtual ~Account() {}
 
     void deposit(double amount);
     virtual void withdraw(double amount) = 0;
 
     double getBalance() const;
-    std::string getAccountNumber() const;
+    string getAccountNumber() const;
 
-    virtual std::string getType() = 0;
+    virtual string getType() = 0;
     virtual void display() = 0;
 };
 

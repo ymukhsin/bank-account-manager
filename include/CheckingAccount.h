@@ -5,18 +5,20 @@
 
 #include <string>
 
+using namespace std;
+
 class CheckingAccount : public Account {
 private:
     double overdraftLimit;
     double transactionFee;
 
 public:
-    CheckingAccount(std::string number, double initialBalance,
+    CheckingAccount(string number, double initialBalance,
                     double limit, double fee);
 
     void withdraw(double amount) override;
 
-    std::string getType() override;
+    string getType() override;
     void display() override;
 
     double getOverdraftLimit() const;
