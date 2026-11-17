@@ -51,14 +51,14 @@ Bank::~Bank() {
     }
 }
 
-void Bank::addCustomer(Customer* customer) {
-    if (customer == nullptr) {
-        throw BankingException("Cannot add a null customer.");
-    }
-    if (findCustomer(customer->getCustomerId()) != nullptr) {
+void Bank::addCustomer(std::string id, std::string name,
+                       std::string phone, std::string email) {
+    if (findCustomer(id) != nullptr) {
         throw BankingException("Duplicate customer ID.");
     }
-    customers.push_back(customer);
+    customers.push_back(
+        new Customer(std::move(id), std::move(name),
+                     std::move(phone), std::move(email)));
 }
 
 Customer* Bank::findCustomer(std::string customerId) {
@@ -233,4 +233,8 @@ void Bank::loadData(std::string filePath) {
             throw BankingException("Unknown data record.");
         }
     }
+}
+
+void Bank::run() {
+    // The interactive menu will be added in the next milestone.
 }

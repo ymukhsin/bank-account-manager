@@ -17,17 +17,20 @@ public:
 
 class InvalidAmountException : public BankingException {
 public:
-    InvalidAmountException() : BankingException("Invalid amount.") {}
+    explicit InvalidAmountException(const std::string& message = "Invalid amount.")
+        : BankingException(message) {}
 };
 
 class InsufficientFundsException : public BankingException {
 public:
-    InsufficientFundsException() : BankingException("Insufficient funds.") {}
+    explicit InsufficientFundsException(const std::string& message = "Insufficient funds.")
+        : BankingException(message) {}
 };
 
 class AccountNotFoundException : public BankingException {
 public:
-    AccountNotFoundException() : BankingException("Account not found.") {}
+    explicit AccountNotFoundException(const std::string& message = "Account not found.")
+        : BankingException(message) {}
 };
 
 #endif // BANK_ACCOUNT_MANAGER_EXCEPTIONS_H

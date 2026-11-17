@@ -8,10 +8,10 @@
 int main() {
     Bank bank("OOP II Bank", "02-123-4567", "bank@example.com", "Seoul");
 
-    bank.addCustomer(new Customer("C101", "Mukhsinjon",
-                                  "010-1111-2222", "mukh@example.com"));
-    bank.addCustomer(new Customer("C102", "Mina",
-                                  "010-3333-4444", "mina@example.com"));
+    bank.addCustomer("C101", "Mukhsinjon",
+                     "010-1111-2222", "mukh@example.com");
+    bank.addCustomer("C102", "Mina",
+                     "010-3333-4444", "mina@example.com");
 
     bank.openAccount("C101",
                      new SavingsAccount("SAV-1001", 1000.0, 0.05, 100.0));

@@ -23,7 +23,8 @@ public:
     Bank(const Bank&) = delete;
     Bank& operator=(const Bank&) = delete;
 
-    void addCustomer(Customer* customer);
+    void addCustomer(std::string id, std::string name,
+                     std::string phone, std::string email);
     Customer* findCustomer(std::string customerId);
 
     void openAccount(std::string customerId, Account* account);
@@ -35,6 +36,8 @@ public:
 
     void saveData(std::string filePath);
     void loadData(std::string filePath);
+
+    void run();
 };
 
 #endif // BANK_ACCOUNT_MANAGER_BANK_H
