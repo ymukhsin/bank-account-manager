@@ -22,14 +22,11 @@ public:
              string mail, string pwd);
     ~Customer();
 
-    Customer(const Customer&) = delete;
-    Customer& operator=(const Customer&) = delete;
-
     void addAccount(Account* account);
     void removeAccount(string accountNumber);
     Account* findAccount(string accountNumber);
-    void listAccounts() const;
-    double getTotalBalance() const;
+    void listAccounts(string bankId = "") const;
+    double getTotalBalance(string bankId = "") const;
 
     string getCustomerId() const;
     string getFullName() const;

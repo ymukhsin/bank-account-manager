@@ -1,34 +1,29 @@
-#include "Bank.h"
+#include "BankSystem.h"
+#include "FileStorage.h"
 #include "Exceptions.h"
-
 #include <iostream>
 
 using namespace std;
 
 int main() {
-    Bank bank("deu", "01000000000",
-              "deu@example.com", "Busan, South Korea");
+    BankSystem system;
 
     try {
-        bank.loadData("bank_data.txt");
-    } catch (const BankingException& e) {
-        cout << "Could not load saved data: " << e.what() << '\n';
+        FileStorage::load(system);
     } catch (const exception& e) {
         cout << "Could not load saved data: " << e.what() << '\n';
+        cout << "Original data has NOT been overwritten.\n";
+        return 1;  
     }
 
-    bank.run();
+    system.run();
 
     try {
-        bank.saveData("bank_data.txt");
+        system.save();
         cout << "Data saved automatically.\n";
-    } catch (const BankingException& e) {
-        cout << "Could not save data: " << e.what() << '\n';
-        return 1;
     } catch (const exception& e) {
         cout << "Could not save data: " << e.what() << '\n';
         return 1;
     }
-
     return 0;
 }

@@ -1,5 +1,6 @@
 bank_app
 bank_app.exe
 bank_data.txt
+*.o
 .DS_Store
 **/.DS_Store

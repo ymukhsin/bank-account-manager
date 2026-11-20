@@ -14,7 +14,7 @@ private:
 
 public:
     CheckingAccount(string number, double initialBalance,
-                    double limit, double fee);
+                    double limit, double fee, string bank);
 
     void withdraw(double amount) override;
 

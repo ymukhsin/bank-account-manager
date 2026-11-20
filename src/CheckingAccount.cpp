@@ -1,17 +1,18 @@
 #include "CheckingAccount.h"
 
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
 CheckingAccount::CheckingAccount(string number, double initialBalance,
-                                 double limit, double fee)
-    : Account(number, initialBalance),
+                                 double limit, double fee, string bank)
+    : Account(number, initialBalance, bank),
       overdraftLimit(limit),
       transactionFee(fee) {}
 
 void CheckingAccount::withdraw(double amount) {
-    if (amount <= 0.0) {
+    if (!isfinite(amount) || amount <= 0.0) {
         throw InvalidAmountException();
     }
     if (balance - (amount + transactionFee) < -overdraftLimit) {
@@ -25,7 +26,7 @@ string CheckingAccount::getType() {
 }
 
 void CheckingAccount::display() {
-    cout << "\nChecking Account\n"
+    cout << "\nChecking Account (Bank " << getBankId() << ")\n"
               << "Account Number: " << getAccountNumber() << '\n'
               << "Balance: " << balance << '\n'
               << "Overdraft Limit: " << overdraftLimit << '\n'
@@ -41,7 +42,7 @@ double CheckingAccount::getTransactionFee() const {
 }
 
 void CheckingAccount::setTransactionFee(double fee) {
-    if (fee < 0.0) {
+    if (!isfinite(fee) || fee < 0.0) {
         throw InvalidAmountException("Transaction fee cannot be negative.");
     }
     transactionFee = fee;

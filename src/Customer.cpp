@@ -30,7 +30,9 @@ void Customer::removeAccount(string accountNumber) {
     for (vector<Account*>::iterator it = accounts.begin();
          it != accounts.end(); ++it) {
         if ((*it)->getAccountNumber() == accountNumber) {
+            // removing account from the actual memory
             delete *it;
+            // removing its pointer from the vector
             accounts.erase(it);
             return;
         }
@@ -47,21 +49,23 @@ Account* Customer::findAccount(string accountNumber) {
     return nullptr;
 }
 
-void Customer::listAccounts() const {
-    if (accounts.empty()) {
-        cout << "No accounts found.\n";
-        return;
-    }
-
+void Customer::listAccounts(string bankId) const {
+    int count = 0;
     for (Account* account : accounts) {
-        account->display();
+        if (bankId.empty() || account->getBankId() == bankId) {
+            cout << "\nACCOUNT #" << ++count << " - " << account->getType() << "\n";
+            account->display();
+        }
     }
+    if (count == 0) cout << "No accounts found.\n";
 }
 
-double Customer::getTotalBalance() const {
+double Customer::getTotalBalance(string bankId) const {
     double total = 0.0;
     for (Account* account : accounts) {
-        total += account->getBalance();
+        if (bankId.empty() || account->getBankId() == bankId) {
+            total += account->getBalance();
+        }
     }
     return total;
 }

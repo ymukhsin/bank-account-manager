@@ -14,7 +14,7 @@ private:
 
 public:
     SavingsAccount(string number, double initialBalance,
-                   double rate, double minimum);
+                   double rate, double minimum, string bank);
 
     void withdraw(double amount) override;
     void applyInterest();

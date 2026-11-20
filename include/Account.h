@@ -15,12 +15,13 @@ using namespace std;
 class Account {
 private:
     string accountNumber;
+    string bankId;
 
 protected:
     double balance;
 
 public:
-    Account(string number, double initialBalance);
+    Account(string number, double initialBalance, string bank);
     virtual ~Account() {}
 
     void deposit(double amount);
@@ -28,6 +29,7 @@ public:
 
     double getBalance() const;
     string getAccountNumber() const;
+    string getBankId() const;
 
     virtual string getType() = 0;
     virtual void display() = 0;
