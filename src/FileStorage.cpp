@@ -160,6 +160,7 @@ void FileStorage::load(BankSystem& system) {
         if (!file->eof() && file->fail())
             throw BankingException("Could not read saved data file.");
     }
+    if (allData.empty()) return;  // all files empty = first run, keep defaults
     istringstream in(allData);
 
     // Deleting the old data to store the new one from files.
